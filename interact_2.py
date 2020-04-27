@@ -7,12 +7,13 @@ import random
 from argparse import ArgumentParser
 from itertools import chain
 from pprint import pformat
+import warnings
 
 import torch
 import torch.nn.functional as F
 
-from pytorch_pretrained_bert  import OpenAIGPTLMHeadModel, OpenAIGPTTokenizer, GPT2LMHeadModel, GPT2Tokenizer
-from train_2 import SPECIAL_TOKENS, build_input_from_segments
+from transformers import OpenAIGPTLMHeadModel, OpenAIGPTTokenizer, GPT2LMHeadModel, GPT2Tokenizer
+from train_2 import SPECIAL_TOKENS, build_input_from_segments, add_special_tokens_
 from utils_2 import get_dataset_personalities, download_pretrained_model
 
 def top_filtering(logits, top_k=0, top_p=0.0, threshold=-float('Inf'), filter_value=-float('Inf')):
@@ -66,8 +67,7 @@ def sample_sequence(persona_info1, persona_info2, history, tokenizer, model, arg
         token_type_ids = torch.tensor(instance["token_type_ids"], device=args.device).unsqueeze(0)
 
         logits = model(input_ids, token_type_ids=token_type_ids)
-
-        if "gpt2" == args.model:
+        if isinstance(logits, tuple):  # for gpt2 and maybe others
             logits = logits[0]
         logits = logits[0, -1, :] / args.temperature
         logits = top_filtering(logits, top_k=args.top_k, top_p=args.top_p)
@@ -76,6 +76,9 @@ def sample_sequence(persona_info1, persona_info2, history, tokenizer, model, arg
         prev = torch.topk(probs, 1)[1] if args.no_sample else torch.multinomial(probs, 1)
         if i < args.min_length and prev.item() in special_tokens_ids:
             while prev.item() in special_tokens_ids:
+                if probs.max().item() == 1:
+                    warnings.warn("Warning: model generating special token with probability 1.")
+                    break  # avoid infinitely looping over special token
                 prev = torch.multinomial(probs, num_samples=1)
 
         if prev.item() in special_tokens_ids:
@@ -88,7 +91,7 @@ def run():
     parser = ArgumentParser()
     parser.add_argument("--dataset_path", type=str, default="", help="Path or url of the dataset. If empty download from S3.")
     parser.add_argument("--dataset_cache", type=str, default='./dataset_cache', help="Path or url of the dataset cache")
-    parser.add_argument("--model", type=str, default="gpt", help="Model type (gpt or gpt2)")
+    parser.add_argument("--model", type=str, default="gpt2", help="Model type (gpt or gpt2)")
     parser.add_argument("--model_checkpoint", type=str, default="", help="Path, url or short name of the model")
     parser.add_argument("--max_history", type=int, default=2, help="Number of previous utterances to keep in history")
     parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu", help="Device (cuda or cpu)")
@@ -107,20 +110,23 @@ def run():
     logger.info(pformat(args))
 
     if args.model_checkpoint == "":
-        args.model_checkpoint = download_pretrained_model()
-
-    random.seed(args.seed)
-    torch.random.manual_seed(args.seed)
-    torch.cuda.manual_seed(args.seed)
+        if args.model == 'gpt2':
+            raise ValueError("Interacting with GPT2 requires passing a finetuned model_checkpoint")
+        else:
+            args.model_checkpoint = download_pretrained_model()
+	
+	
+    if args.seed != 0:
+    	random.seed(args.seed)
+    	torch.random.manual_seed(args.seed)
+    	torch.cuda.manual_seed(args.seed)
 
     logger.info("Get pretrained model and tokenizer")
-    tokenizer_class = GPT2Tokenizer if "gpt2" == args.model else OpenAIGPTTokenizer
+    tokenizer_class, model_class = (GPT2Tokenizer, GPT2LMHeadModel) if args.model == 'gpt2' else (OpenAIGPTTokenizer, OpenAIGPTLMHeadModel)
     tokenizer = tokenizer_class.from_pretrained(args.model_checkpoint)
-    model_class = GPT2LMHeadModel if "gpt2" == args.model else OpenAIGPTLMHeadModel
     model = model_class.from_pretrained(args.model_checkpoint)
-
     model.to(args.device)
-    model.eval()
+    add_special_tokens_(model, tokenizer)
 
     logger.info("Sample a personality")
     personality1, personality2 = get_dataset_personalities(tokenizer, args.dataset_path, args.dataset_cache)
