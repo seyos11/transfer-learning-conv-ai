@@ -17,11 +17,12 @@ from projects.convai2.eval_hits import eval_hits, setup_args as setup_args_hits
 from projects.convai2.eval_f1 import eval_f1, setup_args as setup_args_f1
 from projects.convai2.eval_ppl import eval_ppl, setup_args as setup_args_ppl
 from projects.convai2.build_dict import build_dict
-from pytorch_pretrained_bert import OpenAIGPTDoubleHeadsModel, OpenAIGPTLMHeadModel, OpenAIGPTTokenizer
+from transformers import (OpenAIGPTDoubleHeadsModel, OpenAIGPTLMHeadModel, OpenAIGPTTokenizer,
+                                  GPT2DoubleHeadsModel, GPT2LMHeadModel, GPT2Tokenizer)
 
-from train import build_input_from_segments, pad_dataset, SPECIAL_TOKENS
-from utils import download_pretrained_model, AttrDict
-from interact import sample_sequence
+from train_2 import build_input_from_segments, pad_dataset, SPECIAL_TOKENS,add_special_tokens_
+from utils_2 import download_pretrained_model, AttrDict
+from interact_2 import sample_sequence
 
 class TransformerAgent(Agent):
     @staticmethod
@@ -37,6 +38,8 @@ class TransformerAgent(Agent):
         agent_args.add_argument("--seed", type=int, default=0)
         agent_args.add_argument("--temperature", type=int, default=0.7)
         agent_args.add_argument("--top_k", type=int, default=20)
+        agent_args.add_argument("--top_p", type=float, default=0.9, help="Nucleus filtering (top-p) before sampling (<=0.0: no filtering)")
+
         return argparser
 
     def __init__(self, opt, shared=None):
@@ -57,14 +60,15 @@ class TransformerAgent(Agent):
             self.logger.info("Get pretrained model and tokenizer")
             if args.model_checkpoint == "":
                 args.model_checkpoint = download_pretrained_model()
-
-            self.tokenizer = OpenAIGPTTokenizer.from_pretrained(args.model_checkpoint)
-            if self.args.eval_type == "hits@1":
-                self.model_checkpoint = OpenAIGPTDoubleHeadsModel.from_pretrained(args.model_checkpoint)
+            if 'gpt2' in args.model_checkpoint:
+                self.tokenizer = GPT2Tokenizer.from_pretrained(args.model_checkpoint)
+                model_class = GPT2DoubleHeadsModel if self.args.eval_type == "hits@1" else GPT2LMHeadModel
             else:
-                self.model_checkpoint = OpenAIGPTLMHeadModel.from_pretrained(args.model_checkpoint)
+                self.tokenizer = OpenAIGPTTokenizer.from_pretrained(args.model_checkpoint)
+                model_class = OpenAIGPTDoubleHeadsModel if self.args.eval_type == "hits@1" else OpenAIGPTLMHeadModel
+
+            self.model_checkpoint = model_class.from_pretrained(args.model_checkpoint)
             self.model_checkpoint.to(args.device)
-            self.model_checkpoint.eval()
 
             self.logger.info("Build BPE prefix dictionary")
             convai_dict = build_dict()
@@ -74,10 +78,12 @@ class TransformerAgent(Agent):
             self.model_checkpoint = shared['model']
             self.tokenizer = shared['tokenizer']
             self.prefix2words = shared['prefix2words']
-
+        add_special_tokens_(self.model_checkpoint, self.tokenizer)
         self.special_tokens_ids = self.tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS)
 
-        self.persona = []
+        self.persona  = []
+        self.persona1 = []
+        self.persona2 = []
         self.history = []
         self.labels = []
 
@@ -101,10 +107,16 @@ class TransformerAgent(Agent):
                 subtext = subtext.strip()
                 if subtext.startswith('your persona:'):
                     subtext = subtext.replace('your persona:', '').strip()
-                    self.persona.append(self.tokenizer.encode(subtext))
+                    self.persona1.append(self.tokenizer.encode(subtext))
+                elif subtext.startswith("partner's persona:"):
+                    subtext = subtext.replace("partner's persona:", '').strip()
+                    self.persona2.append(self.tokenizer.encode(subtext))                                       
                 else:
                     self.history.append(self.tokenizer.encode(subtext))
-
+        #if args.task = both??? ---> 
+            #if subtext.startswith("partner's persona:"):
+                #subtext = subtxt.replace("partner's persona:", ''.strip())
+                #self.persona_info2.append(self.tokenizer.encode(subtet))
         self.history = self.history[-(2*self.args.max_history+1):]
 
         candidates = []
@@ -123,7 +135,7 @@ class TransformerAgent(Agent):
         if self.args.eval_type == "hits@1" and len(self.candidates) > 0:
             instances = defaultdict(list)
             for candidate, _ in self.candidates:
-                instance, _ = build_input_from_segments(self.persona, self.history, candidate, self.tokenizer)
+                instance, _ = build_input_from_segments(self.persona1,self.persona2, self.history, candidate, self.tokenizer)
                 for input_name, input_array in instance.items():
                     instances[input_name].append(input_array)
 
@@ -136,7 +148,7 @@ class TransformerAgent(Agent):
                 tensor_inputs[input_name] = tensor
 
             with torch.no_grad():
-                _, mc_logits = self.model_checkpoint(**tensor_inputs)
+                mc_logits = self.model_checkpoint(**tensor_inputs)[1]
 
             val, ind = torch.sort(mc_logits[0], descending=True)
 
@@ -148,7 +160,7 @@ class TransformerAgent(Agent):
         else:
             # We are in interactive of f1 evaluation mode => just sample
             with torch.no_grad():
-                out_ids, _ = sample_sequence(self.persona, self.history, self.tokenizer, self.model_checkpoint, self.args)
+                out_ids, _ = sample_sequence(self.persona1, self.persona2, self.history, self.tokenizer, self.model_checkpoint, self.args)
             out_text = self.tokenizer.decode(out_ids, skip_special_tokens=True,
                                              clean_up_tokenization_spaces=(self.args.eval_type != 'f1'))
             reply = {'text': out_text}
@@ -160,7 +172,7 @@ class TransformerAgent(Agent):
         partial true output. This is used to calculate the per-word perplexity.
         """
         partial_out_ids = self.tokenizer.encode(' '.join(partial_out))
-        instance, _ = build_input_from_segments(self.persona, self.history, partial_out_ids,
+        instance, _ = build_input_from_segments(self.persona1,self.persona2, self.history, partial_out_ids,
                                              self.tokenizer, with_eos=False)
 
         input_ids = torch.tensor(instance["input_ids"], device=self.args.device).unsqueeze(0)
@@ -202,6 +214,8 @@ class TransformerAgent(Agent):
 
     def reset(self):
         self.persona = []
+        self.persona1 = []
+        self.persona2 = []
         self.history = []
         self.labels = []
         self.candidates = []
