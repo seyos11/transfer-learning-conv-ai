@@ -75,7 +75,7 @@ def build_input_from_segments(persona1, persona2, history, reply, tokenizer, lm_
     token_vector_historial = [speaker1 if i % 2 else speaker2 for i, s in enumerate(sequence[2:]) for _ in s]
     
     instance["token_type_ids"] = token_vector_persona + token_vector_historial
-    instance["token_type_ids"] = [speaker2 if i % 2 else speaker1 for i, s in enumerate(sequence) for _ in s]
+    #instance["token_type_ids"] = [speaker2 if i % 2 else speaker1 for i, s in enumerate(sequence) for _ in s]
     #Length: Number of tokens, i.e nº of words
     #Reiniciar indices
     instance["mc_token_ids"] = len(instance["input_ids"]) - 1
