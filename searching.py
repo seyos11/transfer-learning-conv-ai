@@ -13,12 +13,15 @@ class Searcher:
         #print(os.environ['INDEX_NAME'])
         self.index_name = os.environ['INDEX_NAME']
 
-        self.bc = BertClient(ip='localhost', output_fmt='list')
+        self.bc = BertClient(ip='localhost', output_fmt='list',timeout=1000)
         self.client = Elasticsearch('localhost:9200')
+        self.client.cluster.health(wait_for_status='yellow', request_timeout=1)
+        #self.count = 0
     
-    def search(query):
+    def search(self,query):
         #query = input(">>> ")
-        query_vector = bc.encode([query])[0]
+        #self.count += 1
+        query_vector = self.bc.encode([query])[0]
 
         script_query = {
             "script_score": {
@@ -30,10 +33,10 @@ class Searcher:
             }
         }
 
-        response = client.search(
-            index=index_name,
+        response = self.client.search(
+            index = self.index_name,
             body={
-                "size": search_size,
+                "size": self.search_size,
                 "query": script_query,
                 "_source": {"includes": ["sentenceId", "personaId", "text"]}
             }
@@ -49,12 +52,12 @@ class Searcher:
         }
 
 
-        response2 = client.search(
-            index=index_name,
+        response2 = self.client.search(
+            index = self.index_name,
             body={
                 "query": script_query2,
                 "_source": {"includes": ["sentenceId", "personaId", "text"]}
             }
         )
         #print(score) 
-        return persona_block['text']
+        return response2['hits']['hits']#[00]['_source']['text']
