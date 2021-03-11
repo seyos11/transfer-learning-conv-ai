@@ -38,7 +38,7 @@ def get_dataset(tokenizer, dataset_path, dataset_cache=None):
         dataset = torch.load(dataset_cache) 
     else:
         logger.info("Download dataset from %s", dataset_path)
-    #personachat_file = cached_path(dataset_path)
+        personachat_file = cached_path(dataset_path)
         with open('data_personachat.json', "r", encoding="utf-8") as f:
             dataset = json.loads(f.read())
 
