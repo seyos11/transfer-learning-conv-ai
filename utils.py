@@ -1,15 +1,17 @@
 # Copyright (c) 2019-present, HuggingFace Inc.
 # All rights reserved. This source code is licensed under the BSD-style license found in the
 # LICENSE file in the root directory of this source tree.
+from datetime import datetime
 import json
 import logging
 import os
 import tarfile
 import tempfile
+import socket
 
 import torch
 
-from pytorch_pretrained_bert import cached_path
+from transformers import cached_path
 
 PERSONACHAT_URL = "https://s3.amazonaws.com/datasets.huggingface.co/personachat/personachat_self_original.json"
 HF_FINETUNED_MODEL = "https://s3.amazonaws.com/models.huggingface.co/transfer-learning-chatbot/finetuned_chatbot_gpt.tar.gz"
@@ -33,11 +35,11 @@ def get_dataset(tokenizer, dataset_path, dataset_cache=None):
     dataset_cache = dataset_cache + '_' + type(tokenizer).__name__  # Do avoid using GPT cache for GPT-2 and vice-versa
     if dataset_cache and os.path.isfile(dataset_cache):
         logger.info("Load tokenized dataset from cache at %s", dataset_cache)
-        dataset = torch.load(dataset_cache)
+        dataset = torch.load(dataset_cache) 
     else:
         logger.info("Download dataset from %s", dataset_path)
-        personachat_file = cached_path(dataset_path)
-        with open(personachat_file, "r", encoding="utf-8") as f:
+    #personachat_file = cached_path(dataset_path)
+        with open('data_personachat.json', "r", encoding="utf-8") as f:
             dataset = json.loads(f.read())
 
         logger.info("Tokenize and encode the dataset")
@@ -79,7 +81,7 @@ def get_dataset_personalities(tokenizer, dataset_path, dataset_cache=None):
     personalities = []
     for dataset in personachat.values():
         for dialog in dataset:
-            personalities.append(dialog["personality"])
+            personalities.append(dialog["persona_info"])
 
     logger.info("Gathered {} personalities".format(len(personalities)))
     return personalities
@@ -88,3 +90,12 @@ class AttrDict(dict):
     def __init__(self, *args, **kwargs):
         super(AttrDict, self).__init__(*args, **kwargs)
         self.__dict__ = self
+
+
+def make_logdir(model_name: str):
+    """Create unique path to save results and checkpoints, e.g. runs/Sep22_19-45-59_gpu-7_gpt2"""
+    # Code copied from ignite repo
+    current_time = datetime.now().strftime('%b%d_%H-%M-%S')
+    logdir = os.path.join(
+        'runs', current_time + '_' + socket.gethostname() + '_' + model_name)
+    return logdir
