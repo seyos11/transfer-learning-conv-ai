@@ -71,7 +71,8 @@ def build_input_from_segments(persona1, persona2, history, reply, tokenizer, lm_
     
     #Saved all the tokens including special tokens
     instance["input_ids"] = list(chain(*sequence))
-    token_vector_persona = [persona2_token if i %2 else persona1_token for i, s in enumerate(sequence[:2]) for _ in s]
+    #token_vector_persona = [persona2_token if i %2 else persona1_token for i, s in enumerate(sequence[:2]) for _ in s]
+    token_vector_persona = [speaker2 if i %2 else speaker1 for i, s in enumerate(sequence[:2]) for _ in s]
     token_vector_historial = [speaker1 if i % 2 else speaker2 for i, s in enumerate(sequence[2:]) for _ in s]
     
     instance["token_type_ids"] = token_vector_persona + token_vector_historial
