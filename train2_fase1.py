@@ -61,10 +61,10 @@ def build_input_from_segments(persona1, persona2, history, reply, tokenizer, lm_
     bos, eos, persona1_token,persona2_token,speaker1, speaker2 = tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS_2[:-1])
 
     instance = {}
-    sequence = [[bos] + [0]+ list(chain(*persona1))]+ [[1] + list(chain(*persona2))] + history + [reply + ([eos] if with_eos else [])]
+    sequence = [[bos] + [speaker1]+ list(chain(*persona1))]+ [[speaker2] + list(chain(*persona2))] + history + [reply + ([eos] if with_eos else [])]
     #sequence = [sequence[0]] + [[speaker2 if (len(sequence)-i) % 2 else speaker1] + s for i, s in enumerate(sequence[1:])]
     #Dialog_State
-    sequence = [sequence[0]] + [sequence[1]] + [[0 if (len(sequence)-i) % 2 else 1] + s for i, s in enumerate(sequence[2:])]
+    sequence = [sequence[0]] + [sequence[1]] + [[speaker1 if (len(sequence)-i) % 2 else speaker2] + s for i, s in enumerate(sequence[2:])]
 
     #Its created a new list of list where the first token makes reference to the speaker, except the persona list, where is pointed
     #out with <bos>. The last token of the last list is <eos>.
@@ -72,8 +72,8 @@ def build_input_from_segments(persona1, persona2, history, reply, tokenizer, lm_
     #Saved all the tokens including special tokens
     instance["input_ids"] = list(chain(*sequence))
     #token_vector_persona = [persona2_token if i %2 else persona1_token for i, s in enumerate(sequence[:2]) for _ in s]
-    token_vector_persona = [1 if i %2 else 0 for i, s in enumerate(sequence[:2]) for _ in s]
-    token_vector_historial = [0 if i % 2 else 1 for i, s in enumerate(sequence[2:]) for _ in s]
+    token_vector_persona = [speaker2 if i %2 else speaker1 for i, s in enumerate(sequence[:2]) for _ in s]
+    token_vector_historial = [speaker1 if i % 2 else speaker2 for i, s in enumerate(sequence[2:]) for _ in s]
     
     instance["token_type_ids"] = token_vector_persona + token_vector_historial
     #instance["token_type_ids"] = [speaker2 if i % 2 else speaker1 for i, s in enumerate(sequence) for _ in s]
