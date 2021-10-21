@@ -43,7 +43,7 @@ import pickle
 from pathlib import Path
 
 # Used to do vector searches and display the results.
-from vector_engine.utils import vector_search, id2details
+#from vector_engine.utils import vector_search, id2details
 
 def parse_data(path):
     with open(path, 'r', encoding='utf-8') as file:
@@ -84,8 +84,8 @@ data = data_train
 #save_as_json(data,'firstjson.json')
 #with open('Personalidades2.json', 'w') as outfile:
     #json.dump(data, outfile, indent=4)      
-
-embeddings = self.model.encode(data, show_progress_bar=True)
+model = SentenceTransformer('distilbert-base-nli-stsb-mean-tokens')
+embeddings = model.encode(data, show_progress_bar=True)
 # Step 1: Change data type
 embeddings = np.array([embedding for embedding in embeddings]).astype("float32")
 
