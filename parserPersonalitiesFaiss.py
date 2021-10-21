@@ -98,4 +98,5 @@ index = faiss.IndexIDMap(index)
 # Step 4: Add vectors and their IDs
 index.add_with_ids(embeddings, df.id.values)
 
+D, I = index.search(np.array([embeddings[5415]]), k=10)
 print(f'L2 distance: {D.flatten().tolist()}\n\nMAG paper IDs: {I.flatten().tolist()}')
