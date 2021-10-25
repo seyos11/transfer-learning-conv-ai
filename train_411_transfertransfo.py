@@ -204,7 +204,7 @@ def train():
             output_gpt = model(
                 input_ids, token_type_ids=token_type_ids, mc_token_ids=mc_token_ids,
             )
-            lm_logits_flat_shifted = output_gpt.lm_logits[..., :-1, :].contiguous().view(-1, output_gpt.lm_logits.size(-1))
+            lm_logits_flat_shifted = output_gpt.logits[..., :-1, :].contiguous().view(-1, output_gpt.logits.size(-1))
             lm_labels_flat_shifted = lm_labels[..., 1:].contiguous().view(-1)
             return (lm_logits_flat_shifted, output_gpt.mc_logits), (lm_labels_flat_shifted, mc_labels)
     evaluator = Engine(inference)
