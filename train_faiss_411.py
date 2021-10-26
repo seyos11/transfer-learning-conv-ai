@@ -225,7 +225,7 @@ def train():
             input_ids, mc_token_ids, lm_labels, mc_labels, token_type_ids = batch
             #logger.info(tokenizer.decode(input_ids[0, -1, :].tolist()))
             # if we dont send labels to model, it doesnt return losses
-           output_gpt = model(
+            output_gpt = model(
                 input_ids, token_type_ids=token_type_ids, mc_token_ids=mc_token_ids,
             )
             lm_logits_flat_shifted = output_gpt.logits[..., :-1, :].contiguous().view(-1, output_gpt.logits.size(-1))
