@@ -201,7 +201,7 @@ def train():
         input_ids, mc_token_ids, lm_labels, mc_labels, token_type_ids = batch
         output_loss= model(
             input_ids, token_type_ids=token_type_ids, mc_token_ids=mc_token_ids,
-            mc_labels=mc_labels, lm_labels=lm_labels
+            mc_labels=mc_labels, labels=lm_labels
         )
         loss = (output_loss.loss * args.lm_coef + output_loss.mc_loss * args.mc_coef) / args.gradient_accumulation_steps
         if args.fp16:
