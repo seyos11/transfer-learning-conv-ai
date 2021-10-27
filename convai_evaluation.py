@@ -28,7 +28,7 @@ class TransformerAgent(Agent):
     @staticmethod
     def add_cmdline_args(argparser):
         agent_args = argparser.add_argument_group('Agent parameters')
-        agent_args.add_argument("--model_checkpoint", type=str, default="", help="Path, url or short name of the model")
+        agent_args.add_argument("--model_checkpoint", type=str, default="Mar18_04-13-30_pgth06", help="Path, url or short name of the model")
         agent_args.add_argument("--max_history", type=int, default=2, help="Number of previous utterances to keep in history")
         agent_args.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu", help="Device (cuda or cpu)")
         agent_args.add_argument("--eval_type", type=str, default="hits@1", help="hits@1, ppl or f1")
@@ -39,7 +39,6 @@ class TransformerAgent(Agent):
         agent_args.add_argument("--temperature", type=int, default=0.7)
         agent_args.add_argument("--top_k", type=int, default=20)
         agent_args.add_argument("--top_p", type=float, default=0.9, help="Nucleus filtering (top-p) before sampling (<=0.0: no filtering)")
-
         return argparser
 
     def __init__(self, opt, shared=None):
@@ -161,6 +160,7 @@ class TransformerAgent(Agent):
             # We are in interactive of f1 evaluation mode => just sample
             with torch.no_grad():
                 out_ids = sample_sequence(self.persona1, self.persona2, self.history, self.tokenizer, self.model_checkpoint, self.args)
+            print(out_ids)
             out_text = self.tokenizer.decode(out_ids, skip_special_tokens=True,
                                              clean_up_tokenization_spaces=(self.args.eval_type != 'f1'))
             reply = {'text': out_text}
