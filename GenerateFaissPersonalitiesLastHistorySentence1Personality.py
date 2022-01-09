@@ -138,8 +138,8 @@ def get_persona_faiss_selected(args):
 
             # Step 4: Add vectors and their IDs
             index.add_with_ids(embeddings_persona, np.array(list(range(0,embeddings_persona.shape[0])))) 
-            if count==4:
-                break
+            #if count==4:
+            #    break
             count = count + 1
             #data_train list of set of list of all personalities (not duplicated)
             for _ in range(args.personality_permutations):
@@ -152,7 +152,7 @@ def get_persona_faiss_selected(args):
                         history_faiss_selected.append(history)
                         persona_faiss_selected.append(persona_complete[I[0][1]])
                 #persona = [persona[-1]] + persona[:-1]  # permuted personalities
-        break
+        #break
     return persona_faiss_selected
 
 
