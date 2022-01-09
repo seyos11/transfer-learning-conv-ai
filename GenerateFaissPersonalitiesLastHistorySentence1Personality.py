@@ -102,18 +102,18 @@ def get_persona_faiss_selected(args):
     persona_complete = parse_data('./Dataset/train_self_original.txt')
     model = SentenceTransformer('distilbert-base-nli-stsb-mean-tokens')
     count = 0
-    embeddings_persona = model.encode(persona_complete, show_progress_bar=False)   
+    #embeddings_persona = model.encode(persona_complete, show_progress_bar=False)   
     # Step 1: Change data type
-    embeddings_persona = np.array([embedding for embedding in embeddings_persona]).astype("float32")
+    #embeddings_persona = np.array([embedding for embedding in embeddings_persona]).astype("float32")
 
     # Step 2: Instantiate the index
-    index = faiss.IndexFlatL2(embeddings_persona.shape[1])
+    #index = faiss.IndexFlatL2(embeddings_persona.shape[1])
 
     # Step 3: Pass the index to IndexIDMap
-    index = faiss.IndexIDMap(index)
+    #index = faiss.IndexIDMap(index)
 
     # Step 4: Add vectors and their IDs
-    index.add_with_ids(embeddings_persona, np.array(list(range(0,embeddings_persona.shape[0])))) 
+    #index.add_with_ids(embeddings_persona, np.array(list(range(0,embeddings_persona.shape[0])))) 
     for dataset_name, dataset in personachat.items():
         num_candidates = len(dataset[0]["utterances"][0]["candidates"])
         if args.num_candidates > 0 and dataset_name == 'train':
@@ -126,6 +126,18 @@ def get_persona_faiss_selected(args):
             #index: all persona1 sentences or all personalities
             #model1 = SentenceTransformer('bert-large-nli-mean-tokens')
             #model = SentenceTransformer('sentence-transformers/distiluse-base-multilingual-cased')
+            embeddings_persona = model.encode(persona, show_progress_bar=False)   
+            # Step 1: Change data type
+            embeddings_persona = np.array([embedding for embedding in embeddings_persona]).astype("float32")
+
+            # Step 2: Instantiate the index
+            index = faiss.IndexFlatL2(embeddings_persona.shape[1])
+
+            # Step 3: Pass the index to IndexIDMap
+            index = faiss.IndexIDMap(index)
+
+            # Step 4: Add vectors and their IDs
+            index.add_with_ids(embeddings_persona, np.array(list(range(0,embeddings_persona.shape[0])))) 
             if count==4:
                 break
             count = count + 1
