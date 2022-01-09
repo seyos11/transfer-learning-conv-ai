@@ -146,7 +146,8 @@ def get_persona_faiss_selected(args):
                 for utterance in dialog["utterances"]:
                     history = utterance["history"][-(2*args.max_history+1):]
                     for j, candidate in enumerate(utterance["candidates"][-num_candidates:]):
-                        history_encoded = model.encode(history[-1],show_progress_bar=False)
+                        #historysplitted = " ".join(history)
+                        history_encoded = model.encode([history[-1]],show_progress_bar=False)
                         D, I = index.search(np.array(history_encoded), k=5)
                         history_faiss_selected.append(history)
                         persona_faiss_selected.append(persona_complete[I[0][1]])
@@ -176,7 +177,7 @@ def train():
     parser.add_argument("--fp16", type=str, default="", help="Set to O0, O1, O2 or O3 for fp16 training (see apex documentation)")
     parser.add_argument("--local_rank", type=int, default=-1, help="Local rank for distributed training (-1: not distributed)")
     args = parser.parse_args()
-    #data_obtained = get_persona_faiss_selected(args)
+    data_obtained = get_persona_faiss_selected(args)
     print("hola")
     #data_faiss_obtained = json.dumps(data_obtained)
     with open('data_faiss_fase1.pkl', 'rb') as f:
