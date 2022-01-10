@@ -147,7 +147,10 @@ def get_persona_faiss_selected(args):
                     history = utterance["history"][-(2*args.max_history+1):]
                     for j, candidate in enumerate(utterance["candidates"][-num_candidates:]):
                         #historysplitted = " ".join(history)
-                        history_encoded = model.encode([history[-1]],show_progress_bar=False)
+                        if len(history) > 1:
+                            history_encoded = model.encode([history[-2]], show_progress_bar=False)
+                        else:
+                            history_encoded = model.encode([history[-1]],show_progress_bar=False)
                         D, I = index.search(np.array(history_encoded), k=5)
                         history_faiss_selected.append(history)
                         persona_faiss_index.append([I[0][1:-1].tolist()])
@@ -182,9 +185,9 @@ def train():
     parser.add_argument("--local_rank", type=int, default=-1, help="Local rank for distributed training (-1: not distributed)")
     args = parser.parse_args()
     persona_faiss, persona_faiss_index = get_persona_faiss_selected(args)
-    with open('data_persona_faiss_fase1_opcion3.pkl', 'wb') as f:
+    with open('data_persona_faiss_fase1_opcion3_chatbot.pkl', 'wb') as f:
         pickle.dump(persona_faiss, f)
-    with open('data_persona_faiss_index_fase1_opcion3.pkl', 'wb') as f:
+    with open('data_persona_faiss_index_fase1_opcion3_chatbot.pkl', 'wb') as f:
         pickle.dump(persona_faiss_index, f)
 if __name__ == "__main__":
     train()
