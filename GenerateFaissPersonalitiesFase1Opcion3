@@ -182,12 +182,6 @@ def train():
     parser.add_argument("--local_rank", type=int, default=-1, help="Local rank for distributed training (-1: not distributed)")
     args = parser.parse_args()
     persona_faiss, persona_faiss_index = get_persona_faiss_selected(args)
-    print("hola")
-    #data_faiss_obtained = json.dumps(data_obtained)
-    with open('data_faiss_fase1.pkl', 'rb') as f:
-        lista1 = pickle.load(f)
-    with open('data_faiss_fase2.pkl', 'rb') as f:
-        lista2 = pickle.load(f)
     with open('data_persona_faiss_fase1_opcion3.pkl', 'wb') as f:
         pickle.dump(persona_faiss, f)
     with open('data_persona_faiss_index_fase1_opcion3.pkl', 'wb') as f:
