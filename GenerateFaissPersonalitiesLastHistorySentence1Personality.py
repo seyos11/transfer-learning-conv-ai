@@ -147,7 +147,10 @@ def get_persona_faiss_selected(args):
                     history = utterance["history"][-(2*args.max_history+1):]
                     for j, candidate in enumerate(utterance["candidates"][-num_candidates:]):
                         #historysplitted = " ".join(history)
-                        history_encoded = model.encode([history[-1]],show_progress_bar=False)
+                        if len(history) > 1:
+                            history_encoded = model.encode([history[-2]],show_progress_bar=False)
+                        else:
+                            history_encoded = model.encode([history[-1]],show_progress_bar=False)
                         D, I = index.search(np.array(history_encoded), k=5)
                         history_faiss_selected.append(history)
                         persona_faiss_selected.append(persona_complete[I[0][1]])
@@ -178,13 +181,7 @@ def train():
     parser.add_argument("--local_rank", type=int, default=-1, help="Local rank for distributed training (-1: not distributed)")
     args = parser.parse_args()
     data_obtained = get_persona_faiss_selected(args)
-    print("hola")
-    #data_faiss_obtained = json.dumps(data_obtained)
-    with open('data_faiss_fase1.pkl', 'rb') as f:
-        lista1 = pickle.load(f)
-    with open('data_faiss_fase2.pkl', 'rb') as f:
-        lista2 = pickle.load(f)
-    with open('data_faiss_fase2.pkl', 'wb') as f:
+    with open('data_faiss_fase1_opcion2_chatbot.pkl', 'wb') as f:
         pickle.dump(data_obtained, f)
 
 if __name__ == "__main__":
