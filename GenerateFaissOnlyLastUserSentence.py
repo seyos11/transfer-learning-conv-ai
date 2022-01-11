@@ -74,19 +74,7 @@ def parse_data(path):
 # All rights reserved. This source code is licensed under the BSD-style license found in the LICENSE file in the root directory of this source tree.
         
         return data
-def build_input_from_segments(persona, history, reply, tokenizer, lm_labels=False, with_eos=True):
-    """ Build a sequence of input from 3 segments: persona, history and last reply. """
-    bos, eos, speaker1, speaker2 = tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS[:-1])
-    sequence = [[bos] + persona] + history + [reply + ([eos] if with_eos else [])]
-    sequence = [sequence[0]] + [[1 if (len(sequence)-i) % 2 else 0] + s for i, s in enumerate(sequence[1:])]
-    instance = {}
-    instance["input_ids"] = list(chain(*sequence))
-    instance["token_type_ids"] = [1 if i % 2 else 0 for i, s in enumerate(sequence) for _ in s]
-    instance["mc_token_ids"] = len(instance["input_ids"]) - 1
-    instance["lm_labels"] = [-100] * len(instance["input_ids"])
-    if lm_labels:
-        instance["lm_labels"] = ([-100] * sum(len(s) for s in sequence[:-1])) + [-100] + sequence[-1][1:]
-    return instance
+
 
 def get_persona_faiss_selected(args):
     """ Prepare the dataset for training and evaluation """
@@ -102,18 +90,9 @@ def get_persona_faiss_selected(args):
     persona_complete = parse_data('./Dataset/train_self_original.txt')
     model = SentenceTransformer('distilbert-base-nli-stsb-mean-tokens')
     count = 0
-    #embeddings_persona = model.encode(persona_complete, show_progress_bar=False)   
-    # Step 1: Change data type
-    #embeddings_persona = np.array([embedding for embedding in embeddings_persona]).astype("float32")
 
-    # Step 2: Instantiate the index
-    #index = faiss.IndexFlatL2(embeddings_persona.shape[1])
 
-    # Step 3: Pass the index to IndexIDMap
-    #index = faiss.IndexIDMap(index)
 
-    # Step 4: Add vectors and their IDs
-    #index.add_with_ids(embeddings_persona, np.array(list(range(0,embeddings_persona.shape[0])))) 
     for dataset_name, dataset in personachat.items():
         num_candidates = len(dataset[0]["utterances"][0]["candidates"])
         if args.num_candidates > 0 and dataset_name == 'train':
@@ -135,7 +114,6 @@ def get_persona_faiss_selected(args):
 
             # Step 3: Pass the index to IndexIDMap
             index = faiss.IndexIDMap(index)
-
             # Step 4: Add vectors and their IDs
             index.add_with_ids(embeddings_persona, np.array(list(range(0,embeddings_persona.shape[0])))) 
             #if count==4:
@@ -146,11 +124,9 @@ def get_persona_faiss_selected(args):
                 for utterance in dialog["utterances"]:
                     history = utterance["history"][-(2*args.max_history+1):]
                     for j, candidate in enumerate(utterance["candidates"][-num_candidates:]):
-                        #historysplitted = " ".join(history)
-                        if len(history) > 1:
-                            history_encoded = model.encode([history[-2]],show_progress_bar=False)
-                        else:
-                            history_encoded = model.encode([history[-1]],show_progress_bar=False)
+                        #history_encoded = model.encode(history,show_progress_bar=False)
+                        history_splitted = " ".join(history)
+                        history_encoded = model.encode([history_splitted],show_progress_bar=False)
                         D, I = index.search(np.array(history_encoded), k=5)
                         history_faiss_selected.append(history)
                         persona_faiss_selected.append(persona[I[0][0]])
@@ -181,7 +157,7 @@ def train():
     parser.add_argument("--local_rank", type=int, default=-1, help="Local rank for distributed training (-1: not distributed)")
     args = parser.parse_args()
     data_obtained = get_persona_faiss_selected(args)
-    with open('data_faiss_fase1_opcion2_chatbot_personalidad_reducida.pkl', 'wb') as f:
+    with open('data_faiss_fase2.pkl', 'wb') as f:
         pickle.dump(data_obtained, f)
 
 if __name__ == "__main__":

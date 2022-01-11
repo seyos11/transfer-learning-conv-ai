@@ -147,16 +147,41 @@ def get_persona_faiss_selected(args):
                     history = utterance["history"][-(2*args.max_history+1):]
                     for j, candidate in enumerate(utterance["candidates"][-num_candidates:]):
                         #historysplitted = " ".join(history)
-                        if len(history) > 1:
-                            history_encoded = model.encode([history[-2]],show_progress_bar=False)
-                        else:
-                            history_encoded = model.encode([history[-1]],show_progress_bar=False)
-                        D, I = index.search(np.array(history_encoded), k=5)
+                        history_encoded_user = model.encode([history[-1]],show_progress_bar=False)
+                        D, I = index.search(np.array(history_encoded_user), k=5)
                         history_faiss_selected.append(history)
-                        persona_faiss_selected.append(persona[I[0][0]])
+                        
+                        
+                        index_to_be_removed = I[0][0]
+
+                        persona2 = persona[:index_to_be_removed] + persona[index_to_be_removed+1:]
+                        
+                        
+                        embeddings_persona2 = model.encode(persona2, show_progress_bar=False)   
+                        # Step 1: Change data type
+                        embeddings_persona2 = np.array([embedding for embedding in embeddings_persona2]).astype("float32")
+
+                        # Step 2: Instantiate the index
+                        index2 = faiss.IndexFlatL2(embeddings_persona2.shape[1])
+
+                        # Step 3: Pass the index to IndexIDMap
+                        index2 = faiss.IndexIDMap(index2)
+
+                        # Step 4: Add vectors and their IDs
+                        index2.add_with_ids(embeddings_persona2, np.array(list(range(0,embeddings_persona2.shape[0])))) 
+                        persona_faiss_index.append([I[0][1:-1].tolist()])
+                        persona_list = []
+                        for i in I[0][1:-1]:
+                            persona_list.append(persona[i])
+                        if len(history) >1:
+                            history_encoded_chatbot = model.encode([history[-2]], show_progress_bar=False)
+                        else:
+                            history_encoded_chatbot = model.encode([history[-1]], show_progress_bar=False)
+                        T, J = index2.search(np.array(history_encoded_user), k=5)
+                        persona_faiss_selected.append(persona2[J[0][0]])
                 #persona = [persona[-1]] + persona[:-1]  # permuted personalities
         #break
-    return persona_faiss_selected
+    return persona_faiss_selected, persona_faiss_index
 
 
 def train():
@@ -180,10 +205,11 @@ def train():
     parser.add_argument("--fp16", type=str, default="", help="Set to O0, O1, O2 or O3 for fp16 training (see apex documentation)")
     parser.add_argument("--local_rank", type=int, default=-1, help="Local rank for distributed training (-1: not distributed)")
     args = parser.parse_args()
-    data_obtained = get_persona_faiss_selected(args)
-    with open('data_faiss_fase1_opcion2_chatbot_personalidad_reducida.pkl', 'wb') as f:
-        pickle.dump(data_obtained, f)
-
+    persona_faiss, persona_faiss_index = get_persona_faiss_selected(args)
+    with open('data_persona_faiss_fase1_opcion3.pkl', 'wb') as f:
+        pickle.dump(persona_faiss, f)
+    with open('data_persona_faiss_index_fase1_opcion3.pkl', 'wb') as f:
+        pickle.dump(persona_faiss_index, f)
 if __name__ == "__main__":
     train()
 
