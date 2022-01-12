@@ -160,7 +160,7 @@ def get_data_loaders(args, tokenizer):
     #Dataset is charged in variable. It is already tokenidez
     personachat = get_dataset(tokenizer, args.dataset_path, args.dataset_cache)
     personachat_raw = get_dataset_with_no_tokenizer(tokenizer, args.dataset_path, args.dataset_cache)
-    with open('data_faiss_fase1_opcion2_chatbot_personalidad_reducida.pkl', 'rb') as f:
+    with open('data_persona_faiss_fase1_opcion3_chatbot.pkl', 'rb') as f:
         persona_selected_list = pickle.load(f)
     count_persona=0
     #personachat_personalities = get_dataset_personalities(tokenizer,args.dataset_path,args.dataset_cache)
