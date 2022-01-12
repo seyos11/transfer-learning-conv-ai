@@ -191,7 +191,7 @@ def get_data_loaders(args, tokenizer):
                     lm_labels = bool(j == num_candidates-1)
                     #D, I = index.search(np.array([history]), k=10)
                     #print(f'L2 distance: {D.flatten().tolist()}\n\nMAG paper IDs: {I.flatten().tolist()}')
-                    persona_selected = persona_selected_list[count_persona]
+                    persona_selected = persona_selected_list[count_persona][0]
                     persona_selected_tokenized = tokenize(tokenizer,persona_selected)
                     instance = build_input_from_segments(persona_selected_tokenized, history, candidate, tokenizer, lm_labels)
                     count_persona = count_persona + 1
