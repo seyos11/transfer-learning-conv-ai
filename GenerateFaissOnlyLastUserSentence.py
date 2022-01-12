@@ -157,7 +157,7 @@ def train():
     parser.add_argument("--local_rank", type=int, default=-1, help="Local rank for distributed training (-1: not distributed)")
     args = parser.parse_args()
     data_obtained = get_persona_faiss_selected(args)
-    with open('data_faiss_fase2.pkl', 'wb') as f:
+    with open('data_faiss_fase1_opcion1.pkl', 'wb') as f:
         pickle.dump(data_obtained, f)
 
 if __name__ == "__main__":
