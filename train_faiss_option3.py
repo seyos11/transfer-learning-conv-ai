@@ -197,12 +197,12 @@ def get_data_loaders(args, tokenizer):
                         persona_selected_tokenized.append(tokenize(tokenizer,i))
                     #persona_selected_tokenized = tokenize(tokenizer,persona_selected)
                     instance = build_input_from_segments(persona_selected_tokenized, history, candidate, tokenizer, lm_labels)
-                    count_persona = count_persona + 1
+                    #count_persona = count_persona + 1
                     for input_name, input_array in instance.items():
                         datasets[dataset_name][input_name].append(input_array)
                 datasets[dataset_name]["mc_labels"].append(num_candidates - 1)
                 datasets[dataset_name]["n_candidates"] = num_candidates
-                #count_persona = count_persona + 1
+                count_persona = count_persona + 1
                 #persona1 = [persona1[-1]] + persona1[:-1]  # permuted personalities
                 #persona2 = [persona2[-1]] + persona2[:-1]  # permuted personalities
             count = count + 1
