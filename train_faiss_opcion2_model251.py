@@ -113,7 +113,7 @@ def build_input_from_segments_411(persona, history, reply, tokenizer, lm_labels=
 def build_input_from_segments(persona, history, reply, tokenizer, lm_labels=False, with_eos=True):
     """ Build a sequence of input from 3 segments: persona, history and last reply. """
     bos, eos, speaker1, speaker2 = tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS[:-1])
-    sequence = [[bos] + list(chain(*persona))] + history + [reply + ([eos] if with_eos else [])]
+    sequence = [[bos] + persona] + history + [reply + ([eos] if with_eos else [])]
     sequence = [sequence[0]] + [[speaker2 if (len(sequence)-i) % 2 else speaker1] + s for i, s in enumerate(sequence[1:])]
     instance = {}
     instance["input_ids"] = list(chain(*sequence))
