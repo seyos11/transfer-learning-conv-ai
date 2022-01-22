@@ -151,7 +151,7 @@ def get_persona_faiss_selected(args):
                             history_encoded = model.encode([history[-2]], show_progress_bar=False)
                         else:
                             history_encoded = model.encode([history[-1]],show_progress_bar=False)
-                        D, I = index.search(np.array(history_encoded), k=5)
+                        D, I = index.search(np.array(history_encoded), k=len(persona))
                         history_faiss_selected.append(history)
                         persona_faiss_index.append([I[0][1:-1].tolist()])
                         persona_list = []

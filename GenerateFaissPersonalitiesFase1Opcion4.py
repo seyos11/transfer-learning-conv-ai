@@ -148,7 +148,7 @@ def get_persona_faiss_selected(args):
                     for j, candidate in enumerate(utterance["candidates"][-num_candidates:]):
                         #historysplitted = " ".join(history)
                         history_encoded_user = model.encode([history[-1]],show_progress_bar=False)
-                        D, I = index.search(np.array(history_encoded_user), k=5)
+                        D, I = index.search(np.array(history_encoded_user), k=len(persona))
                         history_faiss_selected.append(history)
                         
                         
@@ -177,7 +177,7 @@ def get_persona_faiss_selected(args):
                             history_encoded_chatbot = model.encode([history[-2]], show_progress_bar=False)
                         else:
                             history_encoded_chatbot = model.encode([history[-1]], show_progress_bar=False)
-                        T, J = index2.search(np.array(history_encoded_user), k=5)
+                        T, J = index2.search(np.array(history_encoded_user), k=len(persona2))
                         persona_faiss_selected.append(persona2[J[0][0]])
                 #persona = [persona[-1]] + persona[:-1]  # permuted personalities
         #break
@@ -206,9 +206,9 @@ def train():
     parser.add_argument("--local_rank", type=int, default=-1, help="Local rank for distributed training (-1: not distributed)")
     args = parser.parse_args()
     persona_faiss, persona_faiss_index = get_persona_faiss_selected(args)
-    with open('data_persona_faiss_fase1_opcion3.pkl', 'wb') as f:
+    with open('data_persona_faiss_fase1_opcion4.pkl', 'wb') as f:
         pickle.dump(persona_faiss, f)
-    with open('data_persona_faiss_index_fase1_opcion3.pkl', 'wb') as f:
+    with open('data_persona_faiss_index_fase1_opcion4.pkl', 'wb') as f:
         pickle.dump(persona_faiss_index, f)
 if __name__ == "__main__":
     train()
