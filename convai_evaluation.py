@@ -24,7 +24,7 @@ from sentence_transformers import SentenceTransformer
 import faiss
 from train import pad_dataset, SPECIAL_TOKENS, add_special_tokens_
 from utils import download_pretrained_model, AttrDict
-from interact import sample_sequence
+from interact_faiss import sample_sequence
 #from GenerateFaiss import get...
 def build_input_from_segments(persona, history, reply, tokenizer, lm_labels=False, with_eos=True):
     """ Build a sequence of input from 3 segments: persona, history and last reply. """
@@ -203,7 +203,7 @@ class TransformerAgent(Agent):
         else:
             # We are in interactive of f1 evaluation mode => just sample
             with torch.no_grad():
-                out_ids = sample_sequence(self.persona, self.history, self.tokenizer, self.model_checkpoint, self.args)
+                out_ids = sample_sequence(self.persona_faiss_selected, self.history, self.tokenizer, self.model_checkpoint, self.args)
             out_text = self.tokenizer.decode(out_ids, skip_special_tokens=True,
                                              clean_up_tokenization_spaces=(self.args.eval_type != 'f1'))
             reply = {'text': out_text}
