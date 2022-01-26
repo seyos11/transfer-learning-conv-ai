@@ -26,7 +26,7 @@ from train import pad_dataset, SPECIAL_TOKENS, add_special_tokens_
 from utils import download_pretrained_model, AttrDict
 from interact_faiss import sample_sequence
 #from GenerateFaiss import get...
-def build_input_from_segments(persona, history, reply, tokenizer, lm_labels=False, with_eos=True):
+''' def build_input_from_segments(persona, history, reply, tokenizer, lm_labels=False, with_eos=True):
     """ Build a sequence of input from 3 segments: persona, history and last reply. """
     bos, eos, speaker1, speaker2 = tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS[:-1])
     sequence = [[bos] + persona] + history + [reply + ([eos] if with_eos else [])]
@@ -38,7 +38,31 @@ def build_input_from_segments(persona, history, reply, tokenizer, lm_labels=Fals
     instance["lm_labels"] = [-100] * len(instance["input_ids"])
     if lm_labels:
         instance["lm_labels"] = ([-100] * sum(len(s) for s in sequence[:-1])) + [-100] + sequence[-1][1:]
+    return instance '''
+    
+    
+def build_input_from_segments(persona, history, reply, tokenizer, lm_labels=False, with_eos=True):
+    """ Build a sequence of input from 3 segments: persona, history and last reply. """
+    bos, eos, speaker1, speaker2 = tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS[:-1])
+    sequence = [[bos] + list(chain(*persona))] + history + [reply + ([eos] if with_eos else [])]
+    sequence = [sequence[0]] + [[1 if (len(sequence)-i) % 2 else 0] + s for i, s in enumerate(sequence[1:])]
+    instance = {}
+    instance["input_ids"] = list(chain(*sequence))
+    instance["token_type_ids"] = [1 if i % 2 else 0 for i, s in enumerate(sequence) for _ in s]
+    instance["mc_token_ids"] = len(instance["input_ids"]) - 1
+    instance["lm_labels"] = [-100] * len(instance["input_ids"])
+    if lm_labels:
+        instance["lm_labels"] = ([-100] * sum(len(s) for s in sequence[:-1])) + [-100] + sequence[-1][1:]
     return instance
+
+
+def tokenize(tokenizer_selected,obj):
+    if isinstance(obj, str):
+        return tokenizer_selected.convert_tokens_to_ids(tokenizer_selected.tokenize(obj))
+    if isinstance(obj, dict):
+        return dict((n, tokenize(o)) for n, o in obj.items())
+    return list(tokenize(o) for o in obj)
+
 
 class TransformerAgent(Agent):
     @staticmethod
@@ -160,19 +184,26 @@ class TransformerAgent(Agent):
 
         history_splitted = " ".join(self.history_not_tokenized)
         if len(self.history_not_tokenized) > 1:
-            history_encoded = self.model.encode([self.history_not_tokenized[-2]],show_progress_bar=False)
+            history_encoded = self.model.encode([self.history_not_tokenized[-2]], show_progress_bar=False)
         else:
             history_encoded = self.model.encode([self.history_not_tokenized[-1]],show_progress_bar=False)
+        D, I = index.search(np.array(history_encoded), k=len(self.persona_not_tokenized))
+        #self.history_faiss_selected.append(history)
+        #persona_faiss_index.append([I[0][1:-1].tolist()])
+        persona_list = []
+        for i in I[0][1:-1]:
+            persona_list.append(self.persona_not_tokenized[i])
+        #self.persona_faiss_selected.append(persona_list)
         
         #history_encoded = self.model.encode([history_splitted],show_progress_bar=False)
-        D, I = index.search(np.array(history_encoded), k=len(self.persona_not_tokenized))
         #history_faiss_selected.append(history)
         #persona_faiss_selected.append(persona_not_tokenized[I[0][0]])
         #for i in self.persona_not_tokenized[I[0][0]]:
-        self.persona_faiss_selected = self.persona_not_tokenized[I[0][0]]
-        self.persona_faiss_selected = self.tokenizer.encode(self.persona_faiss_selected)
+       # self.persona_faiss_selected = self.persona_not_tokenized[I[0][0]]
+        for i in persona_list:
+            self.persona_faiss_selected.append(tokenize(self.tokenizer,i))
+        #self.persona_faiss_selected = self.tokenizer.encode(self.persona_faiss_selected)
                 #persona = [persona[-1]] + persona[:-1]  # permuted personalities
-
         self.episode_done = observation['episode_done']
         self.observation = observation
         return observation
