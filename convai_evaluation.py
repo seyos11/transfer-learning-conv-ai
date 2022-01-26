@@ -226,6 +226,7 @@ class TransformerAgent(Agent):
 
         if isinstance(logits, tuple):  # for gpt2 and maybe others
             logits = logits[0]
+        logits = logits[0]
         probs = F.softmax(logits[0, -1], dim=0)
 
         dist = {}
