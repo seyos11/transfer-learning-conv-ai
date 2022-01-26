@@ -24,7 +24,7 @@ from sentence_transformers import SentenceTransformer
 import faiss
 from train import pad_dataset, SPECIAL_TOKENS, add_special_tokens_
 from utils import download_pretrained_model, AttrDict
-from interact_faiss import sample_sequence
+from interact_faiss3 import sample_sequence
 #from GenerateFaiss import get...
 ''' def build_input_from_segments(persona, history, reply, tokenizer, lm_labels=False, with_eos=True):
     """ Build a sequence of input from 3 segments: persona, history and last reply. """
