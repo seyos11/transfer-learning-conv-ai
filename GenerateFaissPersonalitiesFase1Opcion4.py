@@ -177,7 +177,7 @@ def get_persona_faiss_selected(args):
                             history_encoded_chatbot = model.encode([history[-2]], show_progress_bar=False)
                         else:
                             history_encoded_chatbot = model.encode([history[-1]], show_progress_bar=False)
-                        T, J = index2.search(np.array(history_encoded_user), k=len(persona2))
+                        T, J = index2.search(np.array(history_encoded_chatbot), k=len(persona2))
                         persona_faiss_selected.append(persona2[J[0][0]])
                 #persona = [persona[-1]] + persona[:-1]  # permuted personalities
         #break
