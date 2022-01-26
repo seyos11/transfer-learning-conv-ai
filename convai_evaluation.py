@@ -159,7 +159,7 @@ class TransformerAgent(Agent):
         #historysplitted = " ".join(history)
 
         history_splitted = " ".join(self.history_not_tokenized)
-        if len(history) > 1:
+        if len(self.history_not_tokenized) > 1:
             history_encoded = self.model.encode([self.history_not_tokenized[-2]],show_progress_bar=False)
         else:
             history_encoded = self.model.encode([self.history_not_tokenized[-1]],show_progress_bar=False)
