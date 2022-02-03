@@ -26,7 +26,7 @@ from train import pad_dataset, SPECIAL_TOKENS, add_special_tokens_, build_input_
 from utils import download_pretrained_model, AttrDict
 from interact_faiss import sample_sequence
 #from GenerateFaiss import get...
-''' def build_input_from_segments(persona, history, reply, tokenizer, lm_labels=False, with_eos=True):
+def build_input_from_segments(persona, history, reply, tokenizer, lm_labels=False, with_eos=True):
     """ Build a sequence of input from 3 segments: persona, history and last reply. """
     bos, eos, speaker1, speaker2 = tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS[:-1])
     sequence = [[bos] + persona] + history + [reply + ([eos] if with_eos else [])]
@@ -38,7 +38,7 @@ from interact_faiss import sample_sequence
     instance["lm_labels"] = [-100] * len(instance["input_ids"])
     if lm_labels:
         instance["lm_labels"] = ([-100] * sum(len(s) for s in sequence[:-1])) + [-100] + sequence[-1][1:]
-    return instance '''
+    return instance
     
     
 
