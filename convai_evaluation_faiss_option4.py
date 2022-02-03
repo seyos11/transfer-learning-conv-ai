@@ -309,7 +309,7 @@ class TransformerAgent(Agent):
 if __name__ == '__main__':
     parser = base_setup_args(None)
     parser.set_params(
-        model='convai_evaluation_option4:TransformerAgent')
+        model='convai_evaluation_faiss_option4:TransformerAgent')
     opt = parser.parse_args(print_args=False)
 
     if opt['eval_type'] == "hits@1":
@@ -325,6 +325,6 @@ if __name__ == '__main__':
         raise ValueError
 
     setup_args.set_params(
-        model='convai_evaluation_option4:TransformerAgent')
+        model='convai_evaluation_faiss_option4:TransformerAgent')
     opt = setup_args.parse_args(print_args=False)
     eval_fct(opt)
