@@ -8,8 +8,7 @@ from pprint import pformat
 from collections import defaultdict
 from functools import partial
 from tqdm import trange
-from itertools import chain
-import numpy as np
+
 import torch
 import torch.nn.functional as F
 from parlai.core.agents import Agent
@@ -20,49 +19,10 @@ from projects.convai2.eval_ppl import eval_ppl, setup_args as setup_args_ppl
 from projects.convai2.build_dict import build_dict
 from transformers import (OpenAIGPTDoubleHeadsModel, OpenAIGPTLMHeadModel, OpenAIGPTTokenizer,
                                   GPT2DoubleHeadsModel, GPT2LMHeadModel, GPT2Tokenizer)
-from sentence_transformers import SentenceTransformer
-import faiss
-from train import pad_dataset, SPECIAL_TOKENS, add_special_tokens_
+
+from train import build_input_from_segments, pad_dataset, SPECIAL_TOKENS, add_special_tokens_
 from utils import download_pretrained_model, AttrDict
-from interact_faiss3 import sample_sequence
-#from GenerateFaiss import get...
-''' def build_input_from_segments(persona, history, reply, tokenizer, lm_labels=False, with_eos=True):
-    """ Build a sequence of input from 3 segments: persona, history and last reply. """
-    bos, eos, speaker1, speaker2 = tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS[:-1])
-    sequence = [[bos] + persona] + history + [reply + ([eos] if with_eos else [])]
-    sequence = [sequence[0]] + [[1 if (len(sequence)-i) % 2 else 0] + s for i, s in enumerate(sequence[1:])]
-    instance = {}
-    instance["input_ids"] = list(chain(*sequence))
-    instance["token_type_ids"] = [1 if i % 2 else 0 for i, s in enumerate(sequence) for _ in s]
-    instance["mc_token_ids"] = len(instance["input_ids"]) - 1
-    instance["lm_labels"] = [-100] * len(instance["input_ids"])
-    if lm_labels:
-        instance["lm_labels"] = ([-100] * sum(len(s) for s in sequence[:-1])) + [-100] + sequence[-1][1:]
-    return instance '''
-    
-    
-def build_input_from_segments(persona, history, reply, tokenizer, lm_labels=False, with_eos=True):
-    """ Build a sequence of input from 3 segments: persona, history and last reply. """
-    bos, eos, speaker1, speaker2 = tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS[:-1])
-    sequence = [[bos] + list(chain(*persona))] + history + [reply + ([eos] if with_eos else [])]
-    sequence = [sequence[0]] + [[1 if (len(sequence)-i) % 2 else 0] + s for i, s in enumerate(sequence[1:])]
-    instance = {}
-    instance["input_ids"] = list(chain(*sequence))
-    instance["token_type_ids"] = [1 if i % 2 else 0 for i, s in enumerate(sequence) for _ in s]
-    instance["mc_token_ids"] = len(instance["input_ids"]) - 1
-    instance["lm_labels"] = [-100] * len(instance["input_ids"])
-    if lm_labels:
-        instance["lm_labels"] = ([-100] * sum(len(s) for s in sequence[:-1])) + [-100] + sequence[-1][1:]
-    return instance
-
-
-def tokenize(tokenizer_selected,obj):
-    if isinstance(obj, str):
-        return tokenizer_selected.convert_tokens_to_ids(tokenizer_selected.tokenize(obj))
-    if isinstance(obj, dict):
-        return dict((n, tokenize(o)) for n, o in obj.items())
-    return list(tokenize(o) for o in obj)
-
+from interact import sample_sequence
 
 class TransformerAgent(Agent):
     @staticmethod
@@ -108,7 +68,6 @@ class TransformerAgent(Agent):
 
             self.model_checkpoint = model_class.from_pretrained(args.model_checkpoint)
             self.model_checkpoint.to(args.device)
-            self.model = SentenceTransformer('distilbert-base-nli-stsb-mean-tokens')
 
             self.logger.info("Build BPE prefix dictionary")
             convai_dict = build_dict()
@@ -120,13 +79,11 @@ class TransformerAgent(Agent):
             self.prefix2words = shared['prefix2words']
         add_special_tokens_(self.model_checkpoint, self.tokenizer)
         self.special_tokens_ids = self.tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS)
-        self.num_candidates=2
+
         self.persona = []
         self.history = []
         self.labels = []
-        self.persona_not_tokenized = []
-        self.history_not_tokenized = []
-        self.persona_faiss_selected = []
+
         self.reset()
 
     def observe(self, observation):
@@ -136,7 +93,7 @@ class TransformerAgent(Agent):
         if self.labels:
             # Add the previous response to the history
             self.history.append(self.labels)
-            self.history_not_tokenized.append(self.tokenizer.decode(self.labels))
+
         if 'labels' in observation or 'eval_labels' in observation:
             text = observation.get('labels', observation.get('eval_labels', [[]]))[0]
             self.labels = self.tokenizer.encode(text)
@@ -148,62 +105,17 @@ class TransformerAgent(Agent):
                 if subtext.startswith('your persona:'):
                     subtext = subtext.replace('your persona:', '').strip()
                     self.persona.append(self.tokenizer.encode(subtext))
-                    self.persona_not_tokenized.append(subtext)
                 else:
-                    self.history_not_tokenized.append(subtext)
                     self.history.append(self.tokenizer.encode(subtext))
-        #Time for faiss
-        #Loop of generation of list of personas comparing with history
-        #faiss_selection = ...
-        #persona_list ---> tokenize it and history
+
         self.history = self.history[-(2*self.args.max_history+1):]
-        self.history_not_tokenized=self.history_not_tokenized[-(2*self.args.max_history+1):]
-        embeddings_persona = []
-        embeddings_persona = self.model.encode(self.persona_not_tokenized, show_progress_bar=False)   
-        # Step 1: Change data type
-        embeddings_persona = np.array([embedding for embedding in embeddings_persona]).astype("float32")
 
-        # Step 2: Instantiate the index
-        index = faiss.IndexFlatL2(embeddings_persona.shape[1])
-
-        # Step 3: Pass the index to IndexIDMap
-        index = faiss.IndexIDMap(index)
-        # Step 4: Add vectors and their IDs
-        index.add_with_ids(embeddings_persona, np.array(list(range(0,embeddings_persona.shape[0])))) 
-        
-
-        
         candidates = []
         if 'label_candidates' in observation:
             for candidate in observation['label_candidates']:
                 candidates.append((self.tokenizer.encode(candidate), candidate))
         self.candidates = candidates
 
-        #for j, candidate in enumerate(self.candidates[-self.num_candidates:]):
-        #historysplitted = " ".join(history)
-
-        history_splitted = " ".join(self.history_not_tokenized)
-        if len(self.history_not_tokenized) > 1:
-            history_encoded = self.model.encode([self.history_not_tokenized[-2]], show_progress_bar=False)
-        else:
-            history_encoded = self.model.encode([self.history_not_tokenized[-1]],show_progress_bar=False)
-        D, I = index.search(np.array(history_encoded), k=len(self.persona_not_tokenized))
-        #self.history_faiss_selected.append(history)
-        #persona_faiss_index.append([I[0][1:-1].tolist()])
-        persona_list = []
-        for i in I[0][1:-1]:
-            persona_list.append(self.persona_not_tokenized[i])
-        #self.persona_faiss_selected.append(persona_list)
-        
-        #history_encoded = self.model.encode([history_splitted],show_progress_bar=False)
-        #history_faiss_selected.append(history)
-        #persona_faiss_selected.append(persona_not_tokenized[I[0][0]])
-        #for i in self.persona_not_tokenized[I[0][0]]:
-       # self.persona_faiss_selected = self.persona_not_tokenized[I[0][0]]
-        for i in persona_list:
-            self.persona_faiss_selected.append(tokenize(self.tokenizer,i))
-        #self.persona_faiss_selected = self.tokenizer.encode(self.persona_faiss_selected)
-                #persona = [persona[-1]] + persona[:-1]  # permuted personalities
         self.episode_done = observation['episode_done']
         self.observation = observation
         return observation
@@ -214,7 +126,7 @@ class TransformerAgent(Agent):
         if self.args.eval_type == "hits@1" and len(self.candidates) > 0:
             instances = defaultdict(list)
             for candidate, _ in self.candidates:
-                instance = build_input_from_segments(self.persona_faiss_selected, self.history, candidate, self.tokenizer)
+                instance = build_input_from_segments(self.persona, self.history, candidate, self.tokenizer)
                 for input_name, input_array in instance.items():
                     instances[input_name].append(input_array)
 
@@ -239,7 +151,7 @@ class TransformerAgent(Agent):
         else:
             # We are in interactive of f1 evaluation mode => just sample
             with torch.no_grad():
-                out_ids = sample_sequence(self.persona_faiss_selected, self.history, self.tokenizer, self.model_checkpoint, self.args)
+                out_ids = sample_sequence(self.persona, self.history, self.tokenizer, self.model_checkpoint, self.args)
             out_text = self.tokenizer.decode(out_ids, skip_special_tokens=True,
                                              clean_up_tokenization_spaces=(self.args.eval_type != 'f1'))
             reply = {'text': out_text}
@@ -251,7 +163,7 @@ class TransformerAgent(Agent):
         partial true output. This is used to calculate the per-word perplexity.
         """
         partial_out_ids = self.tokenizer.encode(' '.join(partial_out))
-        instance = build_input_from_segments(self.persona_faiss_selected, self.history, partial_out_ids,
+        instance = build_input_from_segments(self.persona, self.history, partial_out_ids,
                                              self.tokenizer, with_eos=False)
 
         input_ids = torch.tensor(instance["input_ids"], device=self.args.device).unsqueeze(0)
@@ -262,7 +174,6 @@ class TransformerAgent(Agent):
 
         if isinstance(logits, tuple):  # for gpt2 and maybe others
             logits = logits[0]
-        logits = logits[0]
         probs = F.softmax(logits[0, -1], dim=0)
 
         dist = {}
@@ -296,11 +207,8 @@ class TransformerAgent(Agent):
 
     def reset(self):
         self.persona = []
-        self.persona_not_tokenized = []
         self.history = []
-        self.history_not_tokenized = []
         self.labels = []
-        self.persona_faiss_selected = []
         self.candidates = []
         self.episode_done = True
         self.observation = None
