@@ -178,7 +178,8 @@ def run():
             raw_text = input(">>> ")
         history.append(tokenizer.encode(raw_text))
         selected_personality = []
-        history_encoded =  tokenizer.encode(history[-5:])
+        for i in history[-5:]:
+            history_encoded.append(tokenizer.encode(i))
         if args.option_faiss == 1:
             #Búsqueda Faiss:
             D, I = index.search(np.array(history_encoded), k=len(personality_decoded))
