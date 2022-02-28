@@ -178,6 +178,7 @@ def run():
             raw_text = input(">>> ")
         history.append(tokenizer.encode(raw_text))
         selected_personality = []
+        history_encoded = []
         for i in history[-5:]:
             history_encoded.append(tokenizer.encode(i))
         if args.option_faiss == 1:
