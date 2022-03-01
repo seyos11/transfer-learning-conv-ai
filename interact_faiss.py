@@ -189,7 +189,7 @@ def run():
             D, I = index.search(np.array(history_encoded), k=len(personality_decoded))
             #history_faiss_selected.append(history)
             #persona_faiss_selected.append(persona_complete[I[0][0]])
-            selected_personality = personality_decoded[I[0][0]]]
+            selected_personality = personality_decoded[I[0][0]]
         elif args.option_faiss == 2:
             if len(history) > 1:
                 history_encoded = model_faiss.encode([history_decoded[-2]],show_progress_bar=False)
