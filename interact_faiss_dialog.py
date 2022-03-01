@@ -158,7 +158,7 @@ def run():
     if args.random_personality == 0:
         personality = random.choice(personalities)
     else:
-        personality = personality[args.random_personality-1]
+        personality = personalities[args.random_personality-1]
     logger.info("Selected personality: %s", tokenizer.decode(chain(*personality)))
     personality_decoded = []
     for i in personality:
