@@ -77,7 +77,7 @@ def sample_sequence(personality, history, tokenizer, model, args, current_output
         current_output = []
 
     for i in range(args.max_length):
-        if option_faiss == 3:
+        if args.option_faiss == 3:
             instance = build_input_from_segments1(personality, history, current_output, tokenizer, with_eos=False)
         else:
             instance = build_input_from_segments(personality, history, current_output, tokenizer, with_eos=False)
