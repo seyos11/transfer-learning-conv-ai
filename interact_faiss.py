@@ -77,8 +77,11 @@ def sample_sequence(personality, history, tokenizer, model, args, current_output
         current_output = []
 
     for i in range(args.max_length):
-        instance = build_input_from_segments1(personality, history, current_output, tokenizer, with_eos=False)
-
+        if option_faiss == 3:
+            instance = build_input_from_segments1(personality, history, current_output, tokenizer, with_eos=False)
+        else:
+            instance = build_input_from_segments(personality, history, current_output, tokenizer, with_eos=False)
+            
         input_ids = torch.tensor(instance["input_ids"], device=args.device).unsqueeze(0)
         token_type_ids = torch.tensor(instance["token_type_ids"], device=args.device).unsqueeze(0)
 
@@ -177,9 +180,9 @@ def run():
             raw_text = input(">>> ")
         history.append(tokenizer.encode(raw_text))
         selected_personality = []
-        history_encoded = []
+        history_decoded = []
         for i in history[-5:]:
-            history_encoded.append(tokenizer.encode(i))
+            history_decoded.append(tokenizer.decode(i))
         if args.option_faiss == 1:
             #Búsqueda Faiss:
             D, I = index.search(np.array(history_encoded), k=len(personality_decoded))
