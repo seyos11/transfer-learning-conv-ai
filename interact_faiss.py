@@ -189,6 +189,8 @@ def run():
             D, I = index.search(np.array(history_encoded), k=len(personality_decoded))
             #history_faiss_selected.append(history)
             #persona_faiss_selected.append(persona_complete[I[0][0]])
+            for i in I:
+                print(i)
             selected_personality = personality_decoded[personality_decoded[I[0][0]]]
         elif args.option_faiss == 2:
             if len(history) > 1:
