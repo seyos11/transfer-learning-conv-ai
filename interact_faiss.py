@@ -198,7 +198,7 @@ def run():
                 history_encoded = model_faiss.encode([history_decoded[-2]],show_progress_bar=False)
             else:
                 history_encoded = model_faiss.encode([history_decoded[-1]],show_progress_bar=False)
-            D, I = index.search(np.array(history_encoded, k=len(personality_decoded)))
+            D, I = index.search(np.array(history_encoded), k=len(personality_decoded))
             selected_personality = personality_decoded[I[0][0]]
             selected_personality_encoded=(tokenizer.encode(selected_personality))
 
@@ -253,9 +253,9 @@ def run():
         history.append(out_ids)
         history = history[-(2*args.max_history+1):]
         out_text = tokenizer.decode(out_ids, skip_special_tokens=True)
-        print(personality)
-        print(selected_personality)
-        print(out_text)
+        print("personalidad: " + personality)
+        print("Selected personality" + selected_personality)
+        print("Chatbot's turn:" + out_text)
 
 if __name__ == "__main__":
     run()
