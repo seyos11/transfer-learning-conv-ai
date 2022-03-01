@@ -188,32 +188,32 @@ def run():
             selected_personality = personality_decoded[personality_decoded[I[0][0]]]
         elif args.option_faiss == 2:
             if len(history) > 1:
-                history_encoded = model.encode([history[-2]],show_progress_bar=False)
+                history_encoded = model_faiss.encode([history[-2]],show_progress_bar=False)
             else:
-                history_encoded = model.encode([history[-1]],show_progress_bar=False)
+                history_encoded = model_faiss.encode([history[-1]],show_progress_bar=False)
             D, I = index.search(np.array(history_encoded, k=len(personality_decoded)))
             selected_personality = personality_decoded[I[0][0]]
         elif args.option_faiss == 3:
             if len(history) > 1:
-                history_encoded = model.encode([history[-2]], show_progress_bar=False)
+                history_encoded = model_faiss.encode([history[-2]], show_progress_bar=False)
             else:
-                history_encoded = model.encode([history[-1]],show_progress_bar=False)
+                history_encoded = model_faiss.encode([history[-1]],show_progress_bar=False)
             D, I = index.search(np.array(history_encoded), k=len(personality_decoded))
             persona_list = []
             for i in I[0][1:-1]:
                 selected_personality.append(personality_decoded[i])
         elif args.option_faiss == 4:
-            history_encoded_user = model.encode([history[-1]],show_progress_bar=False)
+            history_encoded_user = model_faiss.encode([history[-1]],show_progress_bar=False)
             D, I = index.search(np.array(history_encoded_user), k=len(personality_decoded))
             history_faiss_selected.append(history)
             
             
             index_to_be_removed = I[0][0]
 
-            persona2 = persona[:index_to_be_removed] + persona[index_to_be_removed+1:]
+            persona2 = personality_decoded[:index_to_be_removed] + personality_decoded[index_to_be_removed+1:]
             
             
-            embeddings_persona2 = model.encode(persona2, show_progress_bar=False)   
+            embeddings_persona2 = model_faiss.encode(persona2, show_progress_bar=False)   
             # Step 1: Change data type
             embeddings_persona2 = np.array([embedding for embedding in embeddings_persona2]).astype("float32")
 
@@ -230,9 +230,9 @@ def run():
             for i in I[0][1:-1]:
                 persona_list.append(persona[i])
             if len(history) >1:
-                history_encoded_chatbot = model.encode([history[-2]], show_progress_bar=False)
+                history_encoded_chatbot = model_faiss.encode([history[-2]], show_progress_bar=False)
             else:
-                history_encoded_chatbot = model.encode([history[-1]], show_progress_bar=False)
+                history_encoded_chatbot = model_faiss.encode([history[-1]], show_progress_bar=False)
             T, J = index2.search(np.array(history_encoded_chatbot), k=len(persona2))
             #persona_faiss_selected.append(persona2[J[0][0]])
             selected_personality = persona2[J[0][0]]
