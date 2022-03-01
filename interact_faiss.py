@@ -185,28 +185,28 @@ def run():
             history_decoded.append(tokenizer.decode(i))
         if args.option_faiss == 1:
             #Búsqueda Faiss:
-            D, I = index.search(np.array(history_encoded), k=len(personality_decoded))
+            D, I = index.search(np.array(history_decoded), k=len(personality_decoded))
             history_faiss_selected.append(history)
             persona_faiss_selected.append(persona_complete[I[0][0]])
             selected_personality = personality_decoded[personality_decoded[I[0][0]]]
         elif args.option_faiss == 2:
             if len(history) > 1:
-                history_encoded = model_faiss.encode([history[-2]],show_progress_bar=False)
+                history_encoded = model_faiss.encode([history_decoded[-2]],show_progress_bar=False)
             else:
-                history_encoded = model_faiss.encode([history[-1]],show_progress_bar=False)
+                history_encoded = model_faiss.encode([history_decoded[-1]],show_progress_bar=False)
             D, I = index.search(np.array(history_encoded, k=len(personality_decoded)))
             selected_personality = personality_decoded[I[0][0]]
         elif args.option_faiss == 3:
             if len(history) > 1:
-                history_encoded = model_faiss.encode([history[-2]], show_progress_bar=False)
+                history_encoded = model_faiss.encode([history_decoded[-2]], show_progress_bar=False)
             else:
-                history_encoded = model_faiss.encode([history[-1]],show_progress_bar=False)
+                history_encoded = model_faiss.encode([history_decoded[-1]],show_progress_bar=False)
             D, I = index.search(np.array(history_encoded), k=len(personality_decoded))
             persona_list = []
             for i in I[0][1:-1]:
                 selected_personality.append(personality_decoded[i])
         elif args.option_faiss == 4:
-            history_encoded_user = model_faiss.encode([history[-1]],show_progress_bar=False)
+            history_encoded_user = model_faiss.encode([history_decoded[-1]],show_progress_bar=False)
             D, I = index.search(np.array(history_encoded_user), k=len(personality_decoded))
             history_faiss_selected.append(history)
             
@@ -233,9 +233,9 @@ def run():
             for i in I[0][1:-1]:
                 persona_list.append(persona[i])
             if len(history) >1:
-                history_encoded_chatbot = model_faiss.encode([history[-2]], show_progress_bar=False)
+                history_encoded_chatbot = model_faiss.encode([history_decoded[-2]], show_progress_bar=False)
             else:
-                history_encoded_chatbot = model_faiss.encode([history[-1]], show_progress_bar=False)
+                history_encoded_chatbot = model_faiss.encode([history_decoded[-1]], show_progress_bar=False)
             T, J = index2.search(np.array(history_encoded_chatbot), k=len(persona2))
             #persona_faiss_selected.append(persona2[J[0][0]])
             selected_personality = persona2[J[0][0]]
