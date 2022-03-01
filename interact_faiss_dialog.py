@@ -124,6 +124,7 @@ def run():
     parser.add_argument("--top_k", type=int, default=0, help="Filter top-k tokens before sampling (<=0: no filtering)")
     parser.add_argument("--top_p", type=float, default=0.9, help="Nucleus filtering (top-p) before sampling (<=0.0: no filtering)")
     parser.add_argument("--option_faiss", type=int, default=0, help="What faiss option is selected")
+    parser.add_argument("--random_personality", type=int, default=0, help="Random personality or another")
 
     args = parser.parse_args()
 
@@ -154,7 +155,10 @@ def run():
     logger.info("Sample a personality")
     dataset = get_dataset(tokenizer, args.dataset_path, args.dataset_cache)
     personalities = [dialog["persona_info"] for dataset in dataset.values() for dialog in dataset]
-    personality = random.choice(personalities)
+    if args.random_personality == 0:
+        personality = random.choice(personalities)
+    else:
+        personality = personality[args.random_personality-1]
     logger.info("Selected personality: %s", tokenizer.decode(chain(*personality)))
     personality_decoded = []
     for i in personality:
