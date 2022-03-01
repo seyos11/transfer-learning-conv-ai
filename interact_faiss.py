@@ -156,9 +156,11 @@ def run():
     personalities = [dialog["persona_info"] for dataset in dataset.values() for dialog in dataset]
     personality = random.choice(personalities)
     logger.info("Selected personality: %s", tokenizer.decode(chain(*personality)))
-
+    personality_decoded = []
+    for i in personality:
+        personality_decoded.append(tokenizer.decode(i))
     model_faiss = SentenceTransformer('distilbert-base-nli-stsb-mean-tokens')
-    embeddings_persona = model_faiss.encode(personality, show_progress_bar=False)   
+    embeddings_persona = model_faiss.encode(personality_decoded, show_progress_bar=False)   
     # Step 1: Change data type
     embeddings_persona = np.array([embedding for embedding in embeddings_persona]).astype("float32")
 
@@ -170,9 +172,6 @@ def run():
     # Step 4: Add vectors and their IDs
     index.add_with_ids(embeddings_persona, np.array(list(range(0,embeddings_persona.shape[0]))))
     history = []
-    personality_decoded = []
-    for i in personality:
-        personality_decoded.append(tokenizer.decode(i))
     while True:
         raw_text = input(">>> ")
         while not raw_text:
