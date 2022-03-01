@@ -207,9 +207,7 @@ def run():
                 selected_personality.append(personality_decoded[i])
         elif args.option_faiss == 4:
             history_encoded_user = model_faiss.encode([history_decoded[-1]],show_progress_bar=False)
-            D, I = index.search(np.array(history_encoded_user), k=len(personality_decoded))
-            history_faiss_selected.append(history)
-            
+            D, I = index.search(np.array(history_encoded_user), k=len(personality_decoded))            
             
             index_to_be_removed = I[0][0]
 
