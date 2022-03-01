@@ -226,7 +226,6 @@ def run():
 
             # Step 4: Add vectors and their IDs
             index2.add_with_ids(embeddings_persona2, np.array(list(range(0,embeddings_persona2.shape[0])))) 
-            persona_faiss_index.append([I[0][1:-1].tolist()])
             persona_list = []
             for i in I[0][1:-1]:
                 persona_list.append(persona[i])
