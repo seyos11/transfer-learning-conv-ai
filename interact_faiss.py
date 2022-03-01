@@ -228,7 +228,7 @@ def run():
             index2.add_with_ids(embeddings_persona2, np.array(list(range(0,embeddings_persona2.shape[0])))) 
             persona_list = []
             for i in I[0][1:-1]:
-                persona_list.append(persona[i])
+                persona_list.append(personality_decoded[i])
             if len(history) >1:
                 history_encoded_chatbot = model_faiss.encode([history_decoded[-2]], show_progress_bar=False)
             else:
