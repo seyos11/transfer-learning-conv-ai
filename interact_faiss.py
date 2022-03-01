@@ -184,9 +184,11 @@ def run():
             history_decoded.append(tokenizer.decode(i))
         if args.option_faiss == 1:
             #Búsqueda Faiss:
+            history_splitted = " ".join(history_decoded)
+            history_encoded = model_faiss.encode([history_splitted],show_progress_bar=False)
             D, I = index.search(np.array(history_decoded), k=len(personality_decoded))
-            history_faiss_selected.append(history)
-            persona_faiss_selected.append(persona_complete[I[0][0]])
+            #history_faiss_selected.append(history)
+            #persona_faiss_selected.append(persona_complete[I[0][0]])
             selected_personality = personality_decoded[personality_decoded[I[0][0]]]
         elif args.option_faiss == 2:
             if len(history) > 1:
