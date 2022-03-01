@@ -260,7 +260,7 @@ def run():
         print(personality_decoded)
         print("Selected personality: ")
         print(selected_personality)
-        print("Chatbot's turn:" + out_text)
-
+        print("Chatbot's turn:")
+        print(out_text)
 if __name__ == "__main__":
     run()
