@@ -125,6 +125,7 @@ def run():
     parser.add_argument("--top_p", type=float, default=0.9, help="Nucleus filtering (top-p) before sampling (<=0.0: no filtering)")
     parser.add_argument("--option_faiss", type=int, default=0, help="What faiss option is selected")
     parser.add_argument("--random_personality", type=int, default=0, help="Random personality or another")
+    parser.add_argument("--max_history", type=int, default=5, help="Random personality or another")
 
     args = parser.parse_args()
 
@@ -185,7 +186,7 @@ def run():
         selected_personality = []
         history_decoded = []
         selected_personality_encoded = []
-        for i in history[-5:]:
+        for i in history[-(args.max_history):]:
             history_decoded.append(tokenizer.decode(i))
         if args.option_faiss == 1:
             #Búsqueda Faiss:
