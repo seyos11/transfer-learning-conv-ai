@@ -191,7 +191,7 @@ def run():
             #persona_faiss_selected.append(persona_complete[I[0][0]])
             for i in I:
                 print(i)
-            selected_personality = personality_decoded[personality_decoded[I[0][0]]]
+            selected_personality = personality_decoded[personality_decoded[I[0]]]
         elif args.option_faiss == 2:
             if len(history) > 1:
                 history_encoded = model_faiss.encode([history_decoded[-2]],show_progress_bar=False)
