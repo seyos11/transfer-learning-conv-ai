@@ -167,7 +167,6 @@ def run():
     # Step 4: Add vectors and their IDs
     index.add_with_ids(embeddings_persona, np.array(list(range(0,embeddings_persona.shape[0]))))
     history = []
-    selected_personality = []
     personality_decoded = []
     for i in personality:
         personality_decoded.append(tokenizer.decode(i))
@@ -239,9 +238,11 @@ def run():
             selected_personality = persona2[J[0][0]]
         else:
             selected_personality = personality_decoded
-        selected_personality = tokenizer.encode(selected_personality)
+        selected_personality_encoded = []
+        for i in selected_personality:
+            selected_personality_encoded.append(tokenizer.encode(i))
         with torch.no_grad():
-            out_ids = sample_sequence(selected_personality, history, tokenizer, model, args)
+            out_ids = sample_sequence(selected_personality_encoded, history, tokenizer, model, args)
         history.append(out_ids)
         history = history[-(2*args.max_history+1):]
         out_text = tokenizer.decode(out_ids, skip_special_tokens=True)
