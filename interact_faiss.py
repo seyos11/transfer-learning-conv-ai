@@ -253,7 +253,7 @@ def run():
         history.append(out_ids)
         history = history[-(2*args.max_history+1):]
         out_text = tokenizer.decode(out_ids, skip_special_tokens=True)
-        print("personalidad: " + personality)
+        print(personality_decoded)
         print("Selected personality" + selected_personality)
         print("Chatbot's turn:" + out_text)
 
