@@ -180,7 +180,7 @@ def run():
         history.append(tokenizer.encode(raw_text))
         selected_personality = []
         history_decoded = []
-        seleted_personality_encoded = []
+        selected_personality_encoded = []
         for i in history[-5:]:
             history_decoded.append(tokenizer.decode(i))
         if args.option_faiss == 1:
@@ -254,7 +254,8 @@ def run():
         history = history[-(2*args.max_history+1):]
         out_text = tokenizer.decode(out_ids, skip_special_tokens=True)
         print(personality_decoded)
-        print("Selected personality" + selected_personality)
+        print("Selected personality: ")
+        print(selected_personality)
         print("Chatbot's turn:" + out_text)
 
 if __name__ == "__main__":
