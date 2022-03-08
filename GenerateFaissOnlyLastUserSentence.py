@@ -87,8 +87,10 @@ def get_persona_faiss_selected(args):
     history_faiss_selected = []
     persona_faiss_index = []
     history_faiss_index = []
-    persona_complete = parse_data('./Dataset/train_self_original.txt')
-    model = SentenceTransformer('distilbert-base-nli-stsb-mean-tokens')
+    #persona_complete = parse_data('./Dataset/train_self_original.txt')
+    model = SentenceTransformer('all-mpnet-base-v2')
+    if torch.cuda.is_available():
+        model = model.to(torch.device("cuda"))
     count = 0
 
 
@@ -127,8 +129,8 @@ def get_persona_faiss_selected(args):
                         #history_encoded = model.encode(history,show_progress_bar=False)
                         history_splitted = " ".join(history)
                         history_encoded = model.encode([history_splitted],show_progress_bar=False)
-                        D, I = index.search(np.array(history_encoded), k=5)
-                        history_faiss_selected.append(history)
+                        D, I = index.search(np.array(history_encoded), k=len(persona))
+                        #history_faiss_selected.append(history)
                         persona_faiss_selected.append(persona[I[0][0]])
                 #persona = [persona[-1]] + persona[:-1]  # permuted personalities
         #break
@@ -155,9 +157,10 @@ def train():
     parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu", help="Device (cuda or cpu)")
     parser.add_argument("--fp16", type=str, default="", help="Set to O0, O1, O2 or O3 for fp16 training (see apex documentation)")
     parser.add_argument("--local_rank", type=int, default=-1, help="Local rank for distributed training (-1: not distributed)")
+    parser.add_argument("--dataset_pkl", type=str, default="data_faiss_fase1.pkl", help="File where is saved the data from faiss (personalities)")
     args = parser.parse_args()
     data_obtained = get_persona_faiss_selected(args)
-    with open('data_faiss_fase1_opcion1.pkl', 'wb') as f:
+    with open(args.dataset_pkl, 'wb') as f:
         pickle.dump(data_obtained, f)
 
 if __name__ == "__main__":
