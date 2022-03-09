@@ -99,8 +99,9 @@ def get_persona_faiss_selected(args):
     history_faiss_selected = []
     persona_faiss_index = []
     history_faiss_index = []
+    score_faiss = []
     persona_complete = parse_data('./Dataset/train_self_original.txt')
-    model = SentenceTransformer('distilbert-base-nli-stsb-mean-tokens')
+    model = SentenceTransformer('all-mpnet-base-v2')
     count = 0
     #embeddings_persona = model.encode(persona_complete, show_progress_bar=False)   
     # Step 1: Change data type
@@ -155,12 +156,19 @@ def get_persona_faiss_selected(args):
                         history_faiss_selected.append(history)
                         persona_faiss_index.append([I[0][1:-1].tolist()])
                         persona_list = []
+                        score_list = []
+                        index_list = []
                         for i in I[0][1:-1]:
-                            persona_list.append(persona[i])
+                            persona_list.append(persona[i])                            
                         persona_faiss_selected.append([persona_list])
+                        #score_faiss.append(list(D.tolist()[0]))
+                             
+                        for i in range(0,len(I[0])):
+                            score_list.append((I[0][i],D[0][i]))
+                        score_faiss.append(score_list)
                 #persona = [persona[-1]] + persona[:-1]  # permuted personalities
         #break
-    return persona_faiss_selected, persona_faiss_index
+    return persona_faiss_selected, persona_faiss_index, score_faiss
 
 
 def train():
@@ -183,11 +191,14 @@ def train():
     parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu", help="Device (cuda or cpu)")
     parser.add_argument("--fp16", type=str, default="", help="Set to O0, O1, O2 or O3 for fp16 training (see apex documentation)")
     parser.add_argument("--local_rank", type=int, default=-1, help="Local rank for distributed training (-1: not distributed)")
+    parser.add_argument("--dataset_pkl", type=str, default="data_persona_faiss_fase1_opcion3_chatbot_all_mpnet_base.pkl", help="File where is saved the data from faiss (personalities)")
     args = parser.parse_args()
-    persona_faiss, persona_faiss_index = get_persona_faiss_selected(args)
-    with open('data_persona_faiss_fase1_opcion3_chatbot.pkl', 'wb') as f:
+    persona_faiss, persona_faiss_index, score_faiss= get_persona_faiss_selected(args)
+    with open(args.dataset_pkl, 'wb') as f:
         pickle.dump(persona_faiss, f)
-    with open('data_persona_faiss_index_fase1_opcion3_chatbot.pkl', 'wb') as f:
+    with open('data_persona_faiss_index_fase1_opcion3_chatbot_all_mpnet_base.pkl', 'wb') as f:
+        pickle.dump(persona_faiss_index, f)
+    with open('score_index_option3_all_mpnet_base.pkl', 'wb') as f:
         pickle.dump(persona_faiss_index, f)
 if __name__ == "__main__":
     train()
