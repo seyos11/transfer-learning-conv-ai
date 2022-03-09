@@ -178,7 +178,7 @@ def train():
     parser.add_argument("--device", type=str, default="cuda" if torch.cuda.is_available() else "cpu", help="Device (cuda or cpu)")
     parser.add_argument("--fp16", type=str, default="", help="Set to O0, O1, O2 or O3 for fp16 training (see apex documentation)")
     parser.add_argument("--local_rank", type=int, default=-1, help="Local rank for distributed training (-1: not distributed)")
-    parser.add_argument("--dataset_pkl", type=str, default="data_faiss_fase1_2.pkl", help="File where is saved the data from faiss (personalities)")
+    parser.add_argument("--dataset_pkl", type=str, default="data_persona_faiss_fase1_opcion5_all_mpnet_base.pkl", help="File where is saved the data from faiss (personalities)")
     args = parser.parse_args()
     data_obtained = get_persona_faiss_selected(args)
     with open(args.dataset_pkl, 'wb') as f:
