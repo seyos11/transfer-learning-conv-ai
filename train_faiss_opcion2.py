@@ -146,7 +146,7 @@ def get_data_loaders(args, tokenizer):
     #Dataset is charged in variable. It is already tokenidez
     personachat = get_dataset(tokenizer, args.dataset_path, args.dataset_cache)
     personachat_raw = get_dataset_with_no_tokenizer(tokenizer, args.dataset_path, args.dataset_cache)
-    with open('data_faiss_fase1_opcion2_chatbot_personalidad_reducida.pkl', 'rb') as f:
+    with open(args.dataset_pkl, 'rb') as f:
         persona_selected_list = pickle.load(f)
     count_persona=0
     #personachat_personalities = get_dataset_personalities(tokenizer,args.dataset_path,args.dataset_cache)
@@ -233,6 +233,7 @@ def train():
     parser.add_argument("--fp16", type=str, default="", help="Set to O0, O1, O2 or O3 for fp16 training (see apex documentation)")
     parser.add_argument("--local_rank", type=int, default=-1, help="Local rank for distributed training (-1: not distributed)")
     parser.add_argument("--data_faiss", type=str, default="data_persona_faiss_fase1_opcion4", help="list of the personalities selected with faiss according to the strategy selected")
+    parser.add_argument("--dataset_pkl", type=str, default="data_faiss_fase1.pkl", help="File where is saved the data from faiss (personalities)")
     args = parser.parse_args()
 
     # logging is set to INFO (resp. WARN) for main (resp. auxiliary) process. logger.info => log main process only, logger.warning => log all processes
