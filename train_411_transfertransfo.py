@@ -18,7 +18,7 @@ from ignite.contrib.handlers import ProgressBar, PiecewiseLinear
 from ignite.contrib.handlers.tensorboard_logger import TensorboardLogger, OutputHandler, OptimizerParamsHandler
 from transformers import (AdamW, OpenAIGPTDoubleHeadsModel, OpenAIGPTTokenizer,
                                   GPT2DoubleHeadsModel, GPT2Tokenizer, WEIGHTS_NAME, CONFIG_NAME)
-
+from datasets import load_metric
 from utils import get_dataset, make_logdir
 
 SPECIAL_TOKENS = ["<bos>", "<eos>", "<speaker1>", "<speaker2>", "<pad>"]
@@ -118,7 +118,7 @@ def train():
     parser = ArgumentParser()
     parser.add_argument("--dataset_path", type=str, default="", help="Path or url of the dataset. If empty download from S3.")
     parser.add_argument("--dataset_cache", type=str, default='./dataset_cache', help="Path or url of the dataset cache")
-    parser.add_argument("--model_checkpoint", type=str, default="openai-gpt", help="Path, url or short name of the model")
+    parser.add_argument("--model_checkpoint", type=str, default="gpt2", help="Path, url or short name of the model")
     parser.add_argument("--num_candidates", type=int, default=2, help="Number of candidates for training")
     parser.add_argument("--max_history", type=int, default=2, help="Number of previous exchanges to keep in history")
     parser.add_argument("--train_batch_size", type=int, default=4, help="Batch size for training")
@@ -227,6 +227,7 @@ def train():
 
     # Prepare metrics - note how we compute distributed metrics
     RunningAverage(output_transform=lambda x: x).attach(trainer, "loss")
+    metric = load_metric("perplexity")
     metrics = {"nll": Loss(torch.nn.CrossEntropyLoss(ignore_index=-100), output_transform=lambda x: (x[0][0], x[1][0])),
                "accuracy": Accuracy(output_transform=lambda x: (x[0][1], x[1][1]))}
     metrics.update({"average_nll": MetricsLambda(average_distributed_scalar, metrics["nll"], args),
