@@ -84,7 +84,7 @@ class TransformerAgent(Agent):
 
             self.model_checkpoint = model_class.from_pretrained(args.model_checkpoint)
             self.model_checkpoint.to(args.device)
-            self.model = SentenceTransformer('distilbert-base-nli-stsb-mean-tokens')
+            self.model = SentenceTransformer('all-mpnet-base-v2')
 
             self.logger.info("Build BPE prefix dictionary")
             convai_dict = build_dict()
