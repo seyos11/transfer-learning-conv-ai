@@ -15,9 +15,6 @@ import torch.nn.functional as F
 from transformers import OpenAIGPTLMHeadModel, OpenAIGPTTokenizer, GPT2LMHeadModel, GPT2Tokenizer
 from train_faiss_option1 import SPECIAL_TOKENS, build_input_from_segments, add_special_tokens_
 from utils import get_dataset, download_pretrained_model
-from sentence_transformers import SentenceTransformer
-import faiss
-import numpy as np
 
 def top_filtering(logits, top_k=0., top_p=0.9, threshold=-float('Inf'), filter_value=-float('Inf')):
     """ Filter a distribution of logits using top-k, top-p (nucleus) and/or threshold filtering
@@ -57,19 +54,6 @@ def top_filtering(logits, top_k=0., top_p=0.9, threshold=-float('Inf'), filter_v
 
     return logits
 
-def build_input_from_segments1(persona, history, reply, tokenizer, lm_labels=False, with_eos=True):
-    """ Build a sequence of input from 3 segments: persona, history and last reply. """
-    bos, eos, speaker1, speaker2 = tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS[:-1])
-    sequence = [[bos] + list(chain(*persona))] + history + [reply + ([eos] if with_eos else [])]
-    sequence = [sequence[0]] + [[1 if (len(sequence)-i) % 2 else 0] + s for i, s in enumerate(sequence[1:])]
-    instance = {}
-    instance["input_ids"] = list(chain(*sequence))
-    instance["token_type_ids"] = [1 if i % 2 else 0 for i, s in enumerate(sequence) for _ in s]
-    instance["mc_token_ids"] = len(instance["input_ids"]) - 1
-    instance["lm_labels"] = [-100] * len(instance["input_ids"])
-    if lm_labels:
-        instance["lm_labels"] = ([-100] * sum(len(s) for s in sequence[:-1])) + [-100] + sequence[-1][1:]
-    return instance
 
 def sample_sequence(personality, history, tokenizer, model, args, current_output=None):
     special_tokens_ids = tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS)
@@ -77,11 +61,8 @@ def sample_sequence(personality, history, tokenizer, model, args, current_output
         current_output = []
 
     for i in range(args.max_length):
-        if args.option_faiss == 3:
-            instance = build_input_from_segments1(personality, history, current_output, tokenizer, with_eos=False)
-        else:
-            instance = build_input_from_segments(personality, history, current_output, tokenizer, with_eos=False)
-            
+        instance = build_input_from_segments(personality, history, current_output, tokenizer, with_eos=False)
+
         input_ids = torch.tensor(instance["input_ids"], device=args.device).unsqueeze(0)
         token_type_ids = torch.tensor(instance["token_type_ids"], device=args.device).unsqueeze(0)
 
@@ -123,8 +104,6 @@ def run():
     parser.add_argument("--temperature", type=int, default=0.7, help="Sampling softmax temperature")
     parser.add_argument("--top_k", type=int, default=0, help="Filter top-k tokens before sampling (<=0: no filtering)")
     parser.add_argument("--top_p", type=float, default=0.9, help="Nucleus filtering (top-p) before sampling (<=0.0: no filtering)")
-    parser.add_argument("--option_faiss", type=int, default=0, help="What faiss option is selected")
-
     args = parser.parse_args()
 
     logging.basicConfig(level=logging.INFO)
@@ -156,21 +135,6 @@ def run():
     personalities = [dialog["persona_info"] for dataset in dataset.values() for dialog in dataset]
     personality = random.choice(personalities)
     logger.info("Selected personality: %s", tokenizer.decode(chain(*personality)))
-    personality_decoded = []
-    for i in personality:
-        personality_decoded.append(tokenizer.decode(i))
-    model_faiss = SentenceTransformer('distilbert-base-nli-stsb-mean-tokens')
-    embeddings_persona = model_faiss.encode(personality_decoded, show_progress_bar=False)   
-    # Step 1: Change data type
-    embeddings_persona = np.array([embedding for embedding in embeddings_persona]).astype("float32")
-
-    # Step 2: Instantiate the index
-    index = faiss.IndexFlatL2(embeddings_persona.shape[1])
-
-    # Step 3: Pass the index to IndexIDMap
-    index = faiss.IndexIDMap(index)
-    # Step 4: Add vectors and their IDs
-    index.add_with_ids(embeddings_persona, np.array(list(range(0,embeddings_persona.shape[0]))))
     history = []
     while True:
         raw_text = input(">>> ")
@@ -178,85 +142,13 @@ def run():
             print('Prompt should not be empty!')
             raw_text = input(">>> ")
         history.append(tokenizer.encode(raw_text))
-        selected_personality = []
-        history_decoded = []
-        selected_personality_encoded = []
-        for i in history[-5:]:
-            history_decoded.append(tokenizer.decode(i))
-        if args.option_faiss == 1:
-            #Búsqueda Faiss:
-            history_splitted = " ".join(history_decoded)
-            history_encoded = model_faiss.encode([history_splitted],show_progress_bar=False)
-            D, I = index.search(np.array(history_encoded), k=len(personality_decoded))
-            #history_faiss_selected.append(history)
-            #persona_faiss_selected.append(persona_complete[I[0][0]])
-            selected_personality = personality_decoded[I[0][0]]
-            selected_personality_encoded=(tokenizer.encode(selected_personality))
-
-        elif args.option_faiss == 2:
-            if len(history) > 1:
-                history_encoded = model_faiss.encode([history_decoded[-2]],show_progress_bar=False)
-            else:
-                history_encoded = model_faiss.encode([history_decoded[-1]],show_progress_bar=False)
-            D, I = index.search(np.array(history_encoded), k=len(personality_decoded))
-            selected_personality = personality_decoded[I[0][0]]
-            selected_personality_encoded=(tokenizer.encode(selected_personality))
-
-        elif args.option_faiss == 3:
-            if len(history) > 1:
-                history_encoded = model_faiss.encode([history_decoded[-2]], show_progress_bar=False)
-            else:
-                history_encoded = model_faiss.encode([history_decoded[-1]],show_progress_bar=False)
-            D, I = index.search(np.array(history_encoded), k=len(personality_decoded))
-            persona_list = []
-            for i in I[0][1:-1]:
-                selected_personality.append(personality_decoded[i])
-            for i in selected_personality:
-                selected_personality_encoded.append(tokenizer.encode(i))
-        elif args.option_faiss == 4:
-            history_encoded_user = model_faiss.encode([history_decoded[-1]],show_progress_bar=False)
-            D, I = index.search(np.array(history_encoded_user), k=len(personality_decoded))            
-            
-            index_to_be_removed = I[0][0]
-
-            persona2 = personality_decoded[:index_to_be_removed] + personality_decoded[index_to_be_removed+1:]
-            
-            
-            embeddings_persona2 = model_faiss.encode(persona2, show_progress_bar=False)   
-            # Step 1: Change data type
-            embeddings_persona2 = np.array([embedding for embedding in embeddings_persona2]).astype("float32")
-
-            # Step 2: Instantiate the index
-            index2 = faiss.IndexFlatL2(embeddings_persona2.shape[1])
-
-            # Step 3: Pass the index to IndexIDMap
-            index2 = faiss.IndexIDMap(index2)
-
-            # Step 4: Add vectors and their IDs
-            index2.add_with_ids(embeddings_persona2, np.array(list(range(0,embeddings_persona2.shape[0])))) 
-            persona_list = []
-            for i in I[0][1:-1]:
-                persona_list.append(personality_decoded[i])
-            if len(history) >1:
-                history_encoded_chatbot = model_faiss.encode([history_decoded[-2]], show_progress_bar=False)
-            else:
-                history_encoded_chatbot = model_faiss.encode([history_decoded[-1]], show_progress_bar=False)
-            T, J = index2.search(np.array(history_encoded_chatbot), k=len(persona2))
-            #persona_faiss_selected.append(persona2[J[0][0]])
-            selected_personality = persona2[J[0][0]]
-            selected_personality_encoded=(tokenizer.encode(seleccted_personality))
-        else:
-            selected_personality = personality_decoded
-        #selected_personality_encoded = []
         with torch.no_grad():
-            out_ids = sample_sequence(selected_personality_encoded, history, tokenizer, model, args)
+            out_ids = sample_sequence(personality, history, tokenizer, model, args)
         history.append(out_ids)
         history = history[-(2*args.max_history+1):]
         out_text = tokenizer.decode(out_ids, skip_special_tokens=True)
-        print(personality_decoded)
-        print("Selected personality: ")
-        print(selected_personality)
-        print("Chatbot's turn:" + out_text)
+        print(out_text)
+
 
 if __name__ == "__main__":
     run()
