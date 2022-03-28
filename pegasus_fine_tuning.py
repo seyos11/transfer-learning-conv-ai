@@ -79,10 +79,12 @@ def get_data_loaders():
         for dialog in dataset:
             persona = dialog["persona_info"].copy()
             #datasets[personality].append(persona)
+            count_history = 0
             for utterance in dialog["utterances"]:
+                count_history = count_history + 1
                 history = utterance["history"][-(2*2+1):]
                 #history_complete.append(history)
-                for j, candidate in enumerate(utterance["candidates"][-num_candidates:]):
+                if len(history) > 4:
                     instance = build_input_from_segments(persona, history)     
                     for input_name, input_array in instance.items():
                         datasets[dataset_name][input_name].append(input_array) 
@@ -94,7 +96,8 @@ def build_input_from_segments(persona, history, with_eos=True):
     #sequence = [[bos] + list(chain(*persona))] + history + [reply + ([eos] if with_eos else [])]
     #sequence = [sequence[0]] + [[1 if (len(sequence)-i) % 2 else 0] + s for i, s in enumerate(sequence[1:])]
     instance = {}
-    instance["input_ids"] = " ".join(history)
+    instance["input_ids"] = history[1] + ' ' + history[3]
+    #instance["input_ids"] = " ".join(history[-1])    
     instance["decoder_input_ids"] = " ".join(persona)
     return instance
 
@@ -161,7 +164,7 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
   else:
     training_args = TrainingArguments(
       output_dir=output_dir,           # output directory
-      num_train_epochs=3,           # total number of training epochs
+      num_train_epochs=1,           # total number of training epochs
       per_device_train_batch_size=1,   # batch size per device during training, can increase if memory allows
       save_steps=500,                  # number of updates steps before checkpoint saves
       save_total_limit=5,              # limit the total amount of checkpoints and deletes the older checkpoints
@@ -193,3 +196,12 @@ if __name__=='__main__':
   train_dataset, _, _, tokenizer = prepare_data(model_name, train_texts, train_labels)
   trainer = prepare_fine_tuning(model_name, tokenizer, train_dataset)
   trainer.train()
+  
+  
+  # Check results
+in_text = [in_df['allTextReprocess'].iloc[3]]
+batch = tokenizer.prepare_seq2seq_batch(in_text, truncation=True, padding='longest').to(torch_device) 
+
+translated = model.generate(min_length=min_length, max_length=max_length, **batch)
+tgt_text = tokenizer.batch_decode(translated, skip_special_tokens=True)
+print(tgt_text)
