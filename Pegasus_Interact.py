@@ -39,7 +39,7 @@ while True:
         print('Prompt should not be empty!')
         raw_text = input(">>> ")
     with torch.no_grad():
-        batch = tokenizer.prepare_seq2seq_batch(raw_text, truncation=True, padding='longest').to("cpu") 
+        batch = tokenizer.prepare_seq2seq_batch(raw_text, truncation=True, padding='longest')
         translated = model.generate(**batch)
         tgt_text = tokenizer.batch_decode(translated, skip_special_tokens=True)
     print(tgt_text)
