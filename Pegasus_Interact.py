@@ -30,26 +30,17 @@ from itertools import chain
 
 from transformers import cached_path
 
+tokenizer = PegasusTokenizer.from_pretrained("results1/checkpoint-95500/")
+model = PegasusForConditionalGeneration.from_pretrained("results1/checkpoint-95500/") 
 
 while True:
     raw_text = input(">>> ")
     while not raw_text:
         print('Prompt should not be empty!')
         in_text = input(">>> ")
-    history.append(tokenizer.encode(raw_text))
     with torch.no_grad():
         out_ids = sample_sequence(personality, history, tokenizer, model, args)
         batch = tokenizer.prepare_seq2seq_batch(in_text, truncation=True, padding='longest').to(torch_device) 
         translated = model.generate(**batch)
         tgt_text = tokenizer.batch_decode(translated, skip_special_tokens=True)
     print(tgt_text)
-logger.info("Get pretrained model and tokenizer")
-tokenizer = PegasusTokenizer.from_pretrained("results1/checkpoint-95500/")
-model = PegasusForConditionalGeneration.from_pretrained("results1/checkpoint-95500/")  
-  # Check results
-in_text = [in_df['allTextReprocess'].iloc[3]]
-batch = tokenizer.prepare_seq2seq_batch(in_text, truncation=True, padding='longest').to(torch_device) 
-
-translated = model.generate(min_length=min_length, max_length=max_length, **batch)
-tgt_text = tokenizer.batch_decode(translated, skip_special_tokens=True)
-print(tgt_text)
