@@ -74,7 +74,7 @@ while True:
         print('Prompt should not be empty!')
         raw_text = input(">>> ")
     #batch = tokenizer.prepare_seq2seq_batch(raw_text, truncation=True, padding='longest')
-    batch = tokenizer(raw_text, truncation=True, padding="longest", return_tensors="pt").to('cpue'')
+    batch = tokenizer(raw_text, truncation=True, padding="longest", return_tensors="pt").to('cpu')
     translated = model.generate(**batch)
     tgt_text = tokenizer.batch_decode(translated, skip_special_tokens=True)
     #tgt_text = tokenizer.batch_decode(translated, skip_special_tokens=True)
