@@ -32,14 +32,14 @@ from transformers import cached_path
 
 tokenizer = PegasusTokenizer.from_pretrained("results1/checkpoint-95500/")
 model = PegasusForConditionalGeneration.from_pretrained("results1/checkpoint-95500/") 
-
+model.to("cpu")
 while True:
     raw_text = input(">>> ")
     while not raw_text:
         print('Prompt should not be empty!')
         raw_text = input(">>> ")
     with torch.no_grad():
-        batch = tokenizer.prepare_seq2seq_batch(raw_text, truncation=True, padding='longest').to(torch_device) 
+        batch = tokenizer.prepare_seq2seq_batch(raw_text, truncation=True, padding='longest').to("cpu"") 
         translated = model.generate(**batch)
         tgt_text = tokenizer.batch_decode(translated, skip_special_tokens=True)
     print(tgt_text)
