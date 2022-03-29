@@ -37,9 +37,9 @@ while True:
     raw_text = input(">>> ")
     while not raw_text:
         print('Prompt should not be empty!')
-        in_text = input(">>> ")
+        raw_text = input(">>> ")
     with torch.no_grad():
-        batch = tokenizer.prepare_seq2seq_batch(in_text, truncation=True, padding='longest').to(torch_device) 
+        batch = tokenizer.prepare_seq2seq_batch(raw_text, truncation=True, padding='longest').to(torch_device) 
         translated = model.generate(**batch)
         tgt_text = tokenizer.batch_decode(translated, skip_special_tokens=True)
     print(tgt_text)
