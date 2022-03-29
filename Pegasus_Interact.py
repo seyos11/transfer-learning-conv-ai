@@ -39,7 +39,6 @@ while True:
         print('Prompt should not be empty!')
         in_text = input(">>> ")
     with torch.no_grad():
-        out_ids = sample_sequence(personality, history, tokenizer, model, args)
         batch = tokenizer.prepare_seq2seq_batch(in_text, truncation=True, padding='longest').to(torch_device) 
         translated = model.generate(**batch)
         tgt_text = tokenizer.batch_decode(translated, skip_special_tokens=True)
