@@ -126,7 +126,7 @@ def prepare_data(model_name,
   return train_dataset, val_dataset, test_dataset, tokenizer
 
 
-def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./results1'):
+def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./results2_3epochs_2batch'):
   """
   Prepare configurations and base model for fine-tuning
   """
@@ -140,7 +140,7 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
   if val_dataset is not None:
     training_args = TrainingArguments(
       output_dir=output_dir,           # output directory
-      num_train_epochs=2000,           # total number of training epochs
+      num_train_epochs=3,           # total number of training epochs
       per_device_train_batch_size=1,   # batch size per device during training, can increase if memory allows
       per_device_eval_batch_size=1,    # batch size for evaluation, can increase if memory allows
       save_steps=500,                  # number of updates steps before checkpoint saves
@@ -164,8 +164,8 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
   else:
     training_args = TrainingArguments(
       output_dir=output_dir,           # output directory
-      num_train_epochs=1,           # total number of training epochs
-      per_device_train_batch_size=1,   # batch size per device during training, can increase if memory allows
+      num_train_epochs=3,           # total number of training epochs
+      per_device_train_batch_size=2,   # batch size per device during training, can increase if memory allows
       save_steps=500,                  # number of updates steps before checkpoint saves
       save_total_limit=5,              # limit the total amount of checkpoints and deletes the older checkpoints
       warmup_steps=500,                # number of warmup steps for learning rate scheduler
