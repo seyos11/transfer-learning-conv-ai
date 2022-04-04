@@ -233,7 +233,7 @@ if __name__ == '__main__':
         raise ValueError
 
     setup_args.set_params(
-        model='convai_evaluation:TransformerAgent')
+        model='convai_evaluation_original_251:TransformerAgent')
     opt = setup_args.parse_args(print_args=False)
 
     eval_fct(opt)
