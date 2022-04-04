@@ -126,7 +126,7 @@ def prepare_data(model_name,
   return train_dataset, val_dataset, test_dataset, tokenizer
 
 
-def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./results2_3epochs_2batch'):
+def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./results_10epochs_2batch'):
   """
   Prepare configurations and base model for fine-tuning
   """
@@ -164,7 +164,7 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
   else:
     training_args = TrainingArguments(
       output_dir=output_dir,           # output directory
-      num_train_epochs=3,           # total number of training epochs
+      num_train_epochs=10,           # total number of training epochs
       per_device_train_batch_size=2,   # batch size per device during training, can increase if memory allows
       save_steps=500,                  # number of updates steps before checkpoint saves
       save_total_limit=5,              # limit the total amount of checkpoints and deletes the older checkpoints
@@ -198,10 +198,10 @@ if __name__=='__main__':
   trainer.train()
   
   
-  # Check results
+'''   # Check results
 in_text = [in_df['allTextReprocess'].iloc[3]]
 batch = tokenizer.prepare_seq2seq_batch(in_text, truncation=True, padding='longest').to(torch_device) 
 
 translated = model.generate(min_length=min_length, max_length=max_length, **batch)
 tgt_text = tokenizer.batch_decode(translated, skip_special_tokens=True)
-print(tgt_text)
+print(tgt_text) '''
