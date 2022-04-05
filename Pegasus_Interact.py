@@ -30,8 +30,8 @@ from itertools import chain
 
 from transformers import cached_path
 
-tokenizer = PegasusTokenizer.from_pretrained("results1/checkpoint-95500/")
-model = PegasusForConditionalGeneration.from_pretrained("results1/checkpoint-95500/") 
+tokenizer = PegasusTokenizer.from_pretrained("results2_3epochs_2batch/checkpoint-143500")
+model = PegasusForConditionalGeneration.from_pretrained("results2_3epochs_2batch/checkpoint-143500/") 
 model.to("cpu")
 
 
