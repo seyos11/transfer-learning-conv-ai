@@ -20,7 +20,7 @@ from projects.convai2.build_dict import build_dict
 from transformers import (OpenAIGPTDoubleHeadsModel, OpenAIGPTLMHeadModel, OpenAIGPTTokenizer,
                                   GPT2DoubleHeadsModel, GPT2LMHeadModel, GPT2Tokenizer)
 
-from train import build_input_from_segments, pad_dataset, SPECIAL_TOKENS, add_special_tokens_
+from train_251 import build_input_from_segments, pad_dataset, SPECIAL_TOKENS, add_special_tokens_
 from utils_251 import download_pretrained_model, AttrDict
 from interact_normal_251 import sample_sequence
 
