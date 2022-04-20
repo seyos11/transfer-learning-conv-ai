@@ -108,7 +108,7 @@ def build_input_from_segments(persona, history, with_eos=True):
     instance["decoder_input_ids"] = " ".join(persona)
     return instance
 
-def build_input_from_segments_faiss(persona, persona_faiss, with_eos=True):
+def build_input_from_segments_faiss(persona_faiss, history, with_eos=True):
     """ Build a sequence of input from 3 segments: persona, history and last reply. """
     #bos, eos, speaker1, speaker2 = tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS[:-1])
     #sequence = [[bos] + list(chain(*persona))] + history + [reply + ([eos] if with_eos else [])]
