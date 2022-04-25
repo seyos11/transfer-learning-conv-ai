@@ -28,7 +28,7 @@ import tempfile
 import socket
 from itertools import chain
 from argparse import ArgumentParser
-
+import pickle
 from transformers import cached_path
 
 
