@@ -123,7 +123,7 @@ def run():
         tgt_text = tokenizer.batch_decode(translated, skip_special_tokens=True)
         #tgt_text = tokenizer.batch_decode(translated, skip_special_tokens=True)
         print(tgt_text)
-        print(dataset['valid'][0][count])
+        print(dataset['valid']['input_ids'][count])
         count = count +1
 
 if __name__ == "__main__":
