@@ -31,6 +31,11 @@ from argparse import ArgumentParser
 
 from transformers import cached_path
 
+
+PERSONACHAT_URL = "https://s3.amazonaws.com/datasets.huggingface.co/personachat/personachat_self_original.json"
+
+logger = logging.getLogger(__file__)
+
 def get_dataset(dataset_path, dataset_cache=None):
     """ Get PERSONACHAT from S3 """
     dataset_path = dataset_path or PERSONACHAT_URL
