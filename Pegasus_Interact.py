@@ -126,7 +126,8 @@ def run():
         translated = model.generate(**batch)
         tgt_text = tokenizer.batch_decode(translated, skip_special_tokens=True)
         #tgt_text = tokenizer.batch_decode(translated, skip_special_tokens=True)
-        print("Result of decoding" + tgt_text)
+        print("Result of decoding")
+        print(tgt_text)
         count = count +1
 
 if __name__ == "__main__":
