@@ -31,6 +31,23 @@ from argparse import ArgumentParser
 
 from transformers import cached_path
 
+def get_dataset(dataset_path, dataset_cache=None):
+    """ Get PERSONACHAT from S3 """
+    dataset_path = dataset_path or PERSONACHAT_URL
+    if dataset_cache and os.path.isfile(dataset_cache):
+        logger.info("Load tokenized dataset from cache at %s", dataset_cache)
+        dataset = torch.load(dataset_cache) 
+    else:
+        logger.info("Download dataset from %s", dataset_path)
+        personachat_file = cached_path(dataset_path)
+        with open('data_personachat.json', "r", encoding="utf-8") as f:
+            dataset = json.loads(f.read())
+
+        logger.info("Tokenize and encode the dataset")
+        if dataset_cache:
+            torch.save(dataset, dataset_cache)
+    return dataset
+
 def get_data_loaders():
     """ Prepare the dataset for training and evaluation """
     dataset_path = ""
