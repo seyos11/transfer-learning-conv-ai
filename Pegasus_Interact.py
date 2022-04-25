@@ -36,6 +36,28 @@ PERSONACHAT_URL = "https://s3.amazonaws.com/datasets.huggingface.co/personachat/
 
 logger = logging.getLogger(__file__)
 
+def build_input_from_segments(persona, history, with_eos=True):
+    """ Build a sequence of input from 3 segments: persona, history and last reply. """
+    #bos, eos, speaker1, speaker2 = tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS[:-1])
+    #sequence = [[bos] + list(chain(*persona))] + history + [reply + ([eos] if with_eos else [])]
+    #sequence = [sequence[0]] + [[1 if (len(sequence)-i) % 2 else 0] + s for i, s in enumerate(sequence[1:])]
+    instance = {}
+    instance["input_ids"] = history[1] + ' ' + history[3]
+    #instance["input_ids"] = " ".join(history[-1])    
+    instance["decoder_input_ids"] = " ".join(persona)
+    return instance
+
+def build_input_from_segments_faiss(persona, persona_faiss, with_eos=True):
+    """ Build a sequence of input from 3 segments: persona, history and last reply. """
+    #bos, eos, speaker1, speaker2 = tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS[:-1])
+    #sequence = [[bos] + list(chain(*persona))] + history + [reply + ([eos] if with_eos else [])]
+    #sequence = [sequence[0]] + [[1 if (len(sequence)-i) % 2 else 0] + s for i, s in enumerate(sequence[1:])]
+    instance = {}
+    instance["input_ids"] = " ".join(persona_faiss)
+    #instance["input_ids"] = " ".join(history[-1])    
+    instance["decoder_input_ids"] = " ".join(persona)
+    return instance
+
 def get_dataset(dataset_path, dataset_cache=None):
     """ Get PERSONACHAT from S3 """
     dataset_path = dataset_path or PERSONACHAT_URL
