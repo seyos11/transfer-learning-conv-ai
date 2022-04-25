@@ -30,9 +30,13 @@ from itertools import chain
 
 from transformers import cached_path
 
-tokenizer = PegasusTokenizer.from_pretrained("results2_3epochs_2batch/checkpoint-143500")
-model = PegasusForConditionalGeneration.from_pretrained("results2_3epochs_2batch/checkpoint-143500/") 
-model.to("cpu")
+def run():
+    parser = ArgumentParser()
+    parser.add_argument("--model_checkpoint", type=str, default="results2_3epochs_2batch/checkpoint-143500", help="Nucleus filtering (top-p) before sampling (<=0.0: no filtering)")
+    args = parser.parse_args()
+    tokenizer = PegasusTokenizer.from_pretrained(args.model_checkpoint)
+    model = PegasusForConditionalGeneration.from_pretrained(args.model_checkpoint) 
+    model.to("cpu")
 
 
 
@@ -68,14 +72,17 @@ model.to("cpu")
 
     return current_output '''
 
-while True:
-    raw_text = input(">>> ")
-    while not raw_text:
-        print('Prompt should not be empty!')
+    while True:
         raw_text = input(">>> ")
-    #batch = tokenizer.prepare_seq2seq_batch(raw_text, truncation=True, padding='longest')
-    batch = tokenizer(raw_text, truncation=True, padding="longest", return_tensors="pt").to('cpu')
-    translated = model.generate(**batch)
-    tgt_text = tokenizer.batch_decode(translated, skip_special_tokens=True)
-    #tgt_text = tokenizer.batch_decode(translated, skip_special_tokens=True)
-    print(tgt_text)
+        while not raw_text:
+            print('Prompt should not be empty!')
+            raw_text = input(">>> ")
+        #batch = tokenizer.prepare_seq2seq_batch(raw_text, truncation=True, padding='longest')
+        batch = tokenizer(raw_text, truncation=True, padding="longest", return_tensors="pt").to('cpu')
+        translated = model.generate(**batch)
+        tgt_text = tokenizer.batch_decode(translated, skip_special_tokens=True)
+        #tgt_text = tokenizer.batch_decode(translated, skip_special_tokens=True)
+        print(tgt_text)
+
+if __name__ == "__main__":
+    run()
