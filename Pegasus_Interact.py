@@ -27,6 +27,7 @@ import tarfile
 import tempfile
 import socket
 from itertools import chain
+from argparse import ArgumentParser
 
 from transformers import cached_path
 
