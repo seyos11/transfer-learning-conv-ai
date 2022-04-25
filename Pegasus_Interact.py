@@ -113,7 +113,9 @@ def run():
     dataset = get_data_loaders()
     count= 0
     while True:
+        print("History input:")
         print(dataset['valid']['input_ids'][count])
+        print("\n Persona Input:")
         print(dataset['valid']['decoder_input_ids'][count])
         raw_text = input(">>> ")
         while not raw_text:
@@ -124,7 +126,7 @@ def run():
         translated = model.generate(**batch)
         tgt_text = tokenizer.batch_decode(translated, skip_special_tokens=True)
         #tgt_text = tokenizer.batch_decode(translated, skip_special_tokens=True)
-        print(tgt_text)
+        print("Result of decoding" + tgt_text)
         count = count +1
 
 if __name__ == "__main__":
