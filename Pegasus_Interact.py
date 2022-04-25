@@ -111,7 +111,7 @@ def run():
     model = PegasusForConditionalGeneration.from_pretrained(args.model_checkpoint) 
     model.to("cpu")
     dataset = get_data_loaders()
-
+    count= 0
     while True:
         print("History input:")
         print(dataset['valid']['input_ids'][count])
@@ -131,5 +131,4 @@ def run():
         print(tgt_text)
 
 if __name__ == "__main__":
-    count= 0
     run()
