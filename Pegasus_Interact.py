@@ -113,6 +113,8 @@ def run():
     dataset = get_data_loaders()
     count= 0
     while True:
+        print(dataset['valid']['input_ids'][count])
+        print(dataset['valid']['decoder_input_ids'][count])
         raw_text = input(">>> ")
         while not raw_text:
             print('Prompt should not be empty!')
