@@ -133,6 +133,7 @@ def run():
         print(dataset['valid']['input_ids'][count])
         print("\n History Input:")
         print(dataset['valid']['decoder_input_ids'][count])
+        count = count +1
         raw_text = input(">>> ")
         while not raw_text:
             print('Prompt should not be empty!')
@@ -144,7 +145,7 @@ def run():
         #tgt_text = tokenizer.batch_decode(translated, skip_special_tokens=True)
         print("Result of decoding")
         print(tgt_text)
-        count = count +1
+
 
 if __name__ == "__main__":
     run()
