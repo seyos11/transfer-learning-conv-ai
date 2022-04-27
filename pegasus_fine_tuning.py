@@ -82,9 +82,12 @@ def get_data_loaders():
             count_history = 0
             for utterance in dialog["utterances"]:
                 count_history = count_history + 1
-                history = utterance["history"][-(2*2+1):]
+                #history = utterance["history"][-(2*2+1):]
+                history = utterance["history"]
                 #history_complete.append(history)
-                if len(history) > 4:
+                #Selección de impares
+                history_chatbot = history[1::2]
+                if len(history_chatbot) > (len(persona)-1):
                     instance = build_input_from_segments(persona, history)     
                     for input_name, input_array in instance.items():
                         datasets[dataset_name][input_name].append(input_array) 
@@ -96,7 +99,20 @@ def build_input_from_segments(persona, history, with_eos=True):
     #sequence = [[bos] + list(chain(*persona))] + history + [reply + ([eos] if with_eos else [])]
     #sequence = [sequence[0]] + [[1 if (len(sequence)-i) % 2 else 0] + s for i, s in enumerate(sequence[1:])]
     instance = {}
-    instance["input_ids"] = history[1] + ' ' + history[3]
+    #instance["input_ids"] = history[1] + ' ' + history[3]
+    history_chatbot = history[1::2]
+    instance["input_ids"] = " ".join(history_chatbot)
+    #instance["input_ids"] = " ".join(history[-1])    
+    instance["decoder_input_ids"] = " ".join(persona)
+    return instance
+
+def build_input_from_segments_faiss(persona, persona_faiss, with_eos=True):
+    """ Build a sequence of input from 3 segments: persona, history and last reply. """
+    #bos, eos, speaker1, speaker2 = tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS[:-1])
+    #sequence = [[bos] + list(chain(*persona))] + history + [reply + ([eos] if with_eos else [])]
+    #sequence = [sequence[0]] + [[1 if (len(sequence)-i) % 2 else 0] + s for i, s in enumerate(sequence[1:])]
+    instance = {}
+    instance["input_ids"] = " ".join(persona_faiss)
     #instance["input_ids"] = " ".join(history[-1])    
     instance["decoder_input_ids"] = " ".join(persona)
     return instance
@@ -126,7 +142,7 @@ def prepare_data(model_name,
   return train_dataset, val_dataset, test_dataset, tokenizer
 
 
-def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./results_30epochs_8batch'):
+def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./result_5epochs_16batch_01learningrate):
   """
   Prepare configurations and base model for fine-tuning
   """
@@ -164,15 +180,18 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
   else:
     training_args = TrainingArguments(
       output_dir=output_dir,           # output directory
-      num_train_epochs=30,           # total number of training epochs
+      num_train_epochs=5,           # total number of training epochs
       per_device_train_batch_size=16,   # batch size per device during training, can increase if memory allows
       save_steps=500,                  # number of updates steps before checkpoint saves
       save_total_limit=5,              # limit the total amount of checkpoints and deletes the older checkpoints
       warmup_steps=500,                # number of warmup steps for learning rate scheduler
       weight_decay=0.1,               # strength of weight decay
+      #weight_decay=0.01,
       logging_dir='./logs',            # directory for storing logs
       logging_steps=10,
-      learning_rate=0.0001
+      learning_rate=0.1
+      #learning_rate=0.0005
+      
     )
 
     trainer = Trainer(
@@ -194,6 +213,7 @@ if __name__=='__main__':
   
   # use Pegasus Large model as base for fine-tuning
   model_name = 'google/pegasus-large'
+  #model_name = 'google/pegasus-xsum'
   train_dataset, _, _, tokenizer = prepare_data(model_name, train_texts, train_labels)
   trainer = prepare_fine_tuning(model_name, tokenizer, train_dataset)
   trainer.train()
