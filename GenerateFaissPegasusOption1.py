@@ -135,12 +135,15 @@ def get_persona_faiss_selected(args):
                     if len(history) > (len(persona) - 1):                   
                         #history_encoded = model.encode(history,show_progress_bar=False)
                         #history_splitted = " ".join(history)
-                        #history_splitted = history[1] + ' ' + history[3]
-
+                        #history_splitted = history[1] + ' ' + history[3]                                     
                         history_splitted = history[1::2]
+
+                        history_encoded = model.encode(history_splitted,show_progress_bar=False)
+                        
                         if len(persona)  < 4:  
                             history_splitted = history[1]
-                        history_encoded = model.encode(history_splitted,show_progress_bar=False)
+
+                            history_encoded = model.encode([history_splitted],show_progress_bar=False)  
                         D, I = index.search(np.array(history_encoded), k=len(persona))
                         persona_list = []
                         persona_list = [persona[I[0][0]]] + [persona[I[0][1]]] 
