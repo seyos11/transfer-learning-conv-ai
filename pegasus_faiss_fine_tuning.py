@@ -199,15 +199,16 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
   else:
     training_args = TrainingArguments(
       output_dir=output_dir,           # output directory
-      num_train_epochs=30,           # total number of training epochs
+      num_train_epochs=5,           # total number of training epochs
       per_device_train_batch_size=16,   # batch size per device during training, can increase if memory allows
       save_steps=500,                  # number of updates steps before checkpoint saves
       save_total_limit=5,              # limit the total amount of checkpoints and deletes the older checkpoints
       warmup_steps=500,                # number of warmup steps for learning rate scheduler
       weight_decay=0.1,               # strength of weight decay
+      #weight_decay=0.01,
       logging_dir='./logs',            # directory for storing logs
       logging_steps=10,
-      learning_rate=0.0001
+      learning_rate=0.1
     )
 
     trainer = Trainer(
