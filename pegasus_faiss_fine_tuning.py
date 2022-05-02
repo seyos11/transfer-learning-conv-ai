@@ -132,7 +132,7 @@ def build_input_from_segments_faiss_2(persona_faiss, history_chatbot, with_eos=T
     instance = {}
     #instance["input_ids"] = " ".join(persona_faiss)
     #instance["input_ids"] = " ".join(history[-1])
-    instance["input_ids"] = history_chatbot   
+    instance["input_ids"] = " ".join(history_chatbot)   
     instance["decoder_input_ids"] = " ".join(persona_faiss)
     return instance
 
@@ -161,7 +161,7 @@ def prepare_data(model_name,
   return train_dataset, val_dataset, test_dataset, tokenizer
 
 
-def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./results_30epochs_16batch_faiss'):
+def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./results_5epochs_16batch_faiss_2sentences'):
   """
   Prepare configurations and base model for fine-tuning
   """
