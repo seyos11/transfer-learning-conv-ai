@@ -37,6 +37,12 @@ MODEL_INPUTS = ["input_ids", "mc_token_ids", "lm_labels", "mc_labels", "token_ty
 PADDED_INPUTS = ["input_ids", "lm_labels", "token_type_ids"]
 
 logger = logging.getLogger(__file__)
+''' def getDocumentsByScore(score=0.5,index):
+    T = []
+    D, I = search(charset, criterion[, ...])
+    for i in D:
+        if i >0.5:
+            T.append(i) '''
 def blockPrint():
     sys.stdout = open(os.devnull, 'w')
 def enablePrint():
@@ -110,10 +116,13 @@ def get_persona_faiss_selected(args):
             embeddings_persona = np.array([embedding for embedding in embeddings_persona]).astype("float32")
 
             # Step 2: Instantiate the index
-            index = faiss.IndexFlatL2(embeddings_persona.shape[1])
+            index = faiss.IndexFlatIP(embeddings_persona.shape[1])
 
+            #index = faiss.IndexFlatL2(embeddings_persona.shape[1])
+            #Sklearn normalize from preprocessing (embeddings)
             # Step 3: Pass the index to IndexIDMap
-            index = faiss.IndexIDMap(index)
+            index = faiss.IndexIDMap2(index)
+            #index = faiss.IndexIDMap(index)
             # Step 4: Add vectors and their IDs
             index.add_with_ids(embeddings_persona, np.array(list(range(0,embeddings_persona.shape[0])))) 
             #if count==4:
@@ -123,10 +132,12 @@ def get_persona_faiss_selected(args):
             for _ in range(args.personality_permutations):
                 for utterance in dialog["utterances"]:
                     history = utterance["history"][-(2*args.max_history+1):]
-                    if len(history) > 4:                   
+                    if len(history) > (len(persona) - 1):                   
                         #history_encoded = model.encode(history,show_progress_bar=False)
-                        history_splitted = " ".join(history)
-                        history_splitted = history[1] + ' ' + history[3]
+                        #history_splitted = " ".join(history)
+                        #history_splitted = history[1] + ' ' + history[3]                
+                        history_splitted = history[1::2]
+
                         history_encoded = model.encode([history_splitted],show_progress_bar=False)
                         D, I = index.search(np.array(history_encoded), k=len(persona))
                         persona_list = []
@@ -162,7 +173,7 @@ def train():
     parser.add_argument("--local_rank", type=int, default=-1, help="Local rank for distributed training (-1: not distributed)")
     args = parser.parse_args()
     data_obtained = get_persona_faiss_selected(args)
-    with open('data_faiss_pegasus.pkl', 'wb') as f:
+    with open('data_faiss_pegasus_2generated.pkl', 'wb') as f:
         pickle.dump(data_obtained, f)
 
 if __name__ == "__main__":
