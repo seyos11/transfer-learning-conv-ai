@@ -75,7 +75,7 @@ def get_data_loaders():
     personality = []
     history_complete = []
     count_persona = 0
-    with open('data_faiss_pegasus.pkl', 'rb') as f:
+    with open('data_faiss_pegasus_2generated.pkl', 'rb') as f:
         persona_selected_list = pickle.load(f)
     for dataset_name, dataset in personachat.items():
         num_candidates = len(dataset[0]["utterances"][0]["candidates"])
@@ -89,9 +89,12 @@ def get_data_loaders():
                 count_history = count_history + 1
                 history = utterance["history"][-(2*2+1):]
                 #history_complete.append(history)
-                if len(history) > 4:
+                if len(history) > (len(persona)-1):
+                    history_chatbot = history[1::2]
+                    if len(persona)  < 4:  
+                        history_chatbot = history[1]
                     persona_selected = persona_selected_list[count_persona]
-                    instance = build_input_from_segments_faiss(persona_selected, history)     
+                    instance = build_input_from_segments_faiss_2(persona_selected, history_chatbot)     
                     for input_name, input_array in instance.items():
                         datasets[dataset_name][input_name].append(input_array)
                     count_persona = count_persona + 1
@@ -108,6 +111,7 @@ def build_input_from_segments(persona, history, with_eos=True):
     instance["decoder_input_ids"] = " ".join(persona)
     return instance
 
+
 def build_input_from_segments_faiss(persona_faiss, history, with_eos=True):
     """ Build a sequence of input from 3 segments: persona, history and last reply. """
     #bos, eos, speaker1, speaker2 = tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS[:-1])
@@ -116,7 +120,19 @@ def build_input_from_segments_faiss(persona_faiss, history, with_eos=True):
     instance = {}
     #instance["input_ids"] = " ".join(persona_faiss)
     #instance["input_ids"] = " ".join(history[-1])
-    instance["input_ids"] = history[1] + ' ' + history[3]    
+    instance["input_ids"] = history[1]  
+    instance["decoder_input_ids"] = " ".join(persona_faiss)
+    return instance
+
+def build_input_from_segments_faiss_2(persona_faiss, history_chatbot, with_eos=True):
+    """ Build a sequence of input from 3 segments: persona, history and last reply. """
+    #bos, eos, speaker1, speaker2 = tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS[:-1])
+    #sequence = [[bos] + list(chain(*persona))] + history + [reply + ([eos] if with_eos else [])]
+    #sequence = [sequence[0]] + [[1 if (len(sequence)-i) % 2 else 0] + s for i, s in enumerate(sequence[1:])]
+    instance = {}
+    #instance["input_ids"] = " ".join(persona_faiss)
+    #instance["input_ids"] = " ".join(history[-1])
+    instance["input_ids"] = history_chatbot   
     instance["decoder_input_ids"] = " ".join(persona_faiss)
     return instance
 
