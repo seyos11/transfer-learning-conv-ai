@@ -139,7 +139,7 @@ def get_persona_faiss_selected(args):
                         history_splitted = history[1]
 
                         history_encoded = model.encode(history_splitted,show_progress_bar=False)
-                        D, I = index.search(np.array(history_encoded), k=len(persona))
+                        D, I = index.search(np.array([history_encoded]), k=len(persona))
                         persona_list = []
                         persona_list = persona[I[0][0]]
                         history_faiss_selected.append(history)
