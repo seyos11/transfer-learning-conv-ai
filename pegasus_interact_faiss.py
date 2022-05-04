@@ -97,7 +97,7 @@ def get_data_loaders():
     personality = []
     history_complete = []
     count_persona = 0
-    with open('data_faiss_pegasus.pkl', 'rb') as f:
+    with open('data_faiss_pegasus_2generated.pkl', 'rb') as f:
         persona_selected_list = pickle.load(f)
     for dataset_name, dataset in personachat.items():
         num_candidates = len(dataset[0]["utterances"][0]["candidates"])
@@ -111,9 +111,82 @@ def get_data_loaders():
                 count_history = count_history + 1
                 history = utterance["history"][-(2*2+1):]
                 #history_complete.append(history)
-                if len(history) > 4:
+                if len(history) > (len(persona)-1):
+                    history_chatbot = history[1::2]
+                    if len(persona)  < 4:  
+                        history_chatbot = history[1]
                     persona_selected = persona_selected_list[count_persona]
-                    instance = build_input_from_segments_faiss(persona_selected, history)     
+                    instance = build_input_from_segments_faiss_2(persona_selected, history_chatbot)     
+                    for input_name, input_array in instance.items():
+                        datasets[dataset_name][input_name].append(input_array)
+                    count_persona = count_persona + 1
+    return datasets
+
+def get_data_loaders_1sentence():
+    """ Prepare the dataset for training and evaluation """
+    dataset_path = ""
+    dataset_cache = None
+    personachat = get_dataset(dataset_path, dataset_cache)
+
+    tokenizer_selected = OpenAIGPTTokenizer.from_pretrained('openai-gpt')
+    logger.info("Build inputs and labels")
+    datasets = {"train": defaultdict(list), "valid": defaultdict(list)}
+    personality = []
+    history_complete = []
+    count_persona = 0
+    with open('data_faiss_pegasus_1generated.pkl', 'rb') as f:
+        persona_selected_list = pickle.load(f)
+    for dataset_name, dataset in personachat.items():
+        num_candidates = len(dataset[0]["utterances"][0]["candidates"])
+        if num_candidates > 0 and dataset_name == 'train':
+            num_candidates = min(1, num_candidates)
+        for dialog in dataset:
+            persona = dialog["persona_info"].copy()
+            #datasets[personality].append(persona)
+            count_history = 0
+            for utterance in dialog["utterances"]:
+                count_history = count_history + 1
+                history = utterance["history"][-(2*2+1):]
+                #history_complete.append(history)
+                if len(history) > 1:
+                    history_chatbot = history[1]
+                    persona_selected = persona_selected_list[count_persona]
+                    instance = build_input_from_segments_faiss(persona_selected, history_chatbot)     
+                    for input_name, input_array in instance.items():
+                        datasets[dataset_name][input_name].append(input_array)
+                    count_persona = count_persona + 1
+    return datasets
+
+def get_data_loaders_4sentence():
+    """ Prepare the dataset for training and evaluation """
+    dataset_path = ""
+    dataset_cache = None
+    personachat = get_dataset(dataset_path, dataset_cache)
+
+    tokenizer_selected = OpenAIGPTTokenizer.from_pretrained('openai-gpt')
+    logger.info("Build inputs and labels")
+    datasets = {"train": defaultdict(list), "valid": defaultdict(list)}
+    personality = []
+    history_complete = []
+    count_persona = 0
+    with open('data_faiss_pegasus_1generated.pkl', 'rb') as f:
+        persona_selected_list = pickle.load(f)
+    for dataset_name, dataset in personachat.items():
+        num_candidates = len(dataset[0]["utterances"][0]["candidates"])
+        if num_candidates > 0 and dataset_name == 'train':
+            num_candidates = min(1, num_candidates)
+        for dialog in dataset:
+            persona = dialog["persona_info"].copy()
+            #datasets[personality].append(persona)
+            count_history = 0
+            for utterance in dialog["utterances"]:
+                count_history = count_history + 1
+                history = utterance["history"][-(2*2+1):]
+                #history_complete.append(history)
+                if len(history) > 1:
+                    history_chatbot = history[1]
+                    persona_selected = persona_selected_list[count_persona]
+                    instance = build_input_from_segments_faiss(persona_selected, history_chatbot)     
                     for input_name, input_array in instance.items():
                         datasets[dataset_name][input_name].append(input_array)
                     count_persona = count_persona + 1
@@ -121,17 +194,23 @@ def get_data_loaders():
 
 def run():
     parser = ArgumentParser()
-    parser.add_argument("--model_checkpoint", type=str, default="results2_3epochs_2batch/checkpoint-143500", help="Nucleus filtering (top-p) before sampling (<=0.0: no filtering)")
+    parser.add_argument("--model_checkpoint", type=str, default="results2_3epochs_2batch/checkpoint-143500", help="model checkpoint to use")
+    parser.add_argument("--data_faiss", type=str, default="data_faiss_pegasus_1generated.pkl", help="pickle data to recover faiss data")
+    parser.add_argument("--n_sentences", type=int, default= 2, help="sentences used to get faiss personality")
+
     args = parser.parse_args()
     tokenizer = PegasusTokenizer.from_pretrained(args.model_checkpoint)
     model = PegasusForConditionalGeneration.from_pretrained(args.model_checkpoint) 
     model.to("cpu")
-    dataset = get_data_loaders()
+    if args.n_sentences == 2:
+        dataset = get_data_loaders()
+    else:
+        dataset= get_data_loaders_1sentence()
     count= 0
     while True:
-        print("Persona Faiss input:")
+        print("History  input:")
         print(dataset['valid']['input_ids'][count])
-        print("\n History Input:")
+        print("\n Persona Faiss Input:")
         print(dataset['valid']['decoder_input_ids'][count])
         count = count +1
         raw_text = input(">>> ")
