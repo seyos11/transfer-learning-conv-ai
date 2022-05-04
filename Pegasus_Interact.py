@@ -121,7 +121,7 @@ def run():
         print("History input:")
         print(dataset['valid']['input_ids'][count])
         print("\n Persona Input:")
-        print(dataset['valid']['decoder_input_ids'][count])
+        print(dataset['valid']['decoder_input_ids'][count][1::2])
         count = count + 1 
         raw_text = input(">>> ")
         while not raw_text:
