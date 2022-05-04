@@ -201,7 +201,7 @@ def build_input_from_segments_faiss_2(persona_faiss, history_chatbot, with_eos=T
     instance = {}
     #instance["input_ids"] = " ".join(persona_faiss)
     #instance["input_ids"] = " ".join(history[-1])
-    instance["input_ids"] = " ".join(history_chatbot)   
+    instance["input_ids"] = ".".join(history_chatbot)   
     instance["decoder_input_ids"] = " ".join(persona_faiss)
     return instance
 

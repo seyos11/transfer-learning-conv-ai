@@ -88,7 +88,7 @@ def get_data_loaders():
                 #Selección de impares
                 history_chatbot = history[1::2]
                 if len(history_chatbot) > (len(persona)-1):
-                    instance = build_input_from_segments(persona, history)     
+                    instance = build_input_from_segments(persona, history_chatbot[-len(persona):])     
                     for input_name, input_array in instance.items():
                         datasets[dataset_name][input_name].append(input_array) 
     return datasets
@@ -101,7 +101,7 @@ def build_input_from_segments(persona, history, with_eos=True):
     instance = {}
     #instance["input_ids"] = history[1] + ' ' + history[3]
     history_chatbot = history[1::2]
-    instance["input_ids"] = " ".join(history_chatbot)
+    instance["input_ids"] = ".".join(history)
     #instance["input_ids"] = " ".join(history[-1])    
     instance["decoder_input_ids"] = " ".join(persona)
     return instance
