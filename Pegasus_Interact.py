@@ -42,7 +42,9 @@ def build_input_from_segments(persona, history, with_eos=True):
     #sequence = [[bos] + list(chain(*persona))] + history + [reply + ([eos] if with_eos else [])]
     #sequence = [sequence[0]] + [[1 if (len(sequence)-i) % 2 else 0] + s for i, s in enumerate(sequence[1:])]
     instance = {}
-    instance["input_ids"] = history[1] + ' ' + history[3]
+    #instance["input_ids"] = history[1] + ' ' + history[3]
+    history_chatbot = history[1::2]
+    instance["input_ids"] = " ".join(history)
     #instance["input_ids"] = " ".join(history[-1])    
     instance["decoder_input_ids"] = " ".join(persona)
     return instance
@@ -95,10 +97,13 @@ def get_data_loaders():
             count_history = 0
             for utterance in dialog["utterances"]:
                 count_history = count_history + 1
-                history = utterance["history"][-(2*2+1):]
+                #history = utterance["history"][-(2*2+1):]
+                history = utterance["history"]
                 #history_complete.append(history)
-                if len(history) > 4:
-                    instance = build_input_from_segments(persona, history)     
+                #Selección de impares
+                history_chatbot = history[1::2]
+                if len(history_chatbot) > (len(persona)-1):
+                    instance = build_input_from_segments(persona, history_chatbot)     
                     for input_name, input_array in instance.items():
                         datasets[dataset_name][input_name].append(input_array) 
     return datasets
@@ -107,9 +112,9 @@ def run():
     parser = ArgumentParser()
     parser.add_argument("--model_checkpoint", type=str, default="results2_3epochs_2batch/checkpoint-143500", help="Nucleus filtering (top-p) before sampling (<=0.0: no filtering)")
     args = parser.parse_args()
-    tokenizer = PegasusTokenizer.from_pretrained(args.model_checkpoint)
-    model = PegasusForConditionalGeneration.from_pretrained(args.model_checkpoint) 
-    model.to("cpu")
+    #tokenizer = PegasusTokenizer.from_pretrained(args.model_checkpoint)
+    #model = PegasusForConditionalGeneration.from_pretrained(args.model_checkpoint) 
+    #model.to("cpu")
     dataset = get_data_loaders()
     count= 0
     while True:
