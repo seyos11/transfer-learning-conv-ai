@@ -191,6 +191,41 @@ def get_data_loaders_4sentence():
                         datasets[dataset_name][input_name].append(input_array)
                     count_persona = count_persona + 1
     return datasets
+def build_input_from_segments(persona, history, with_eos=True):
+    """ Build a sequence of input from 3 segments: persona, history and last reply. """
+    #bos, eos, speaker1, speaker2 = tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS[:-1])
+    #sequence = [[bos] + list(chain(*persona))] + history + [reply + ([eos] if with_eos else [])]
+    #sequence = [sequence[0]] + [[1 if (len(sequence)-i) % 2 else 0] + s for i, s in enumerate(sequence[1:])]
+    instance = {}
+    instance["input_ids"] = history[1] + ' ' + history[3]
+    #instance["input_ids"] = " ".join(history[-1])    
+    instance["decoder_input_ids"] = " ".join(persona)
+    return instance
+
+
+def build_input_from_segments_faiss(persona_faiss, history, with_eos=True):
+    """ Build a sequence of input from 3 segments: persona, history and last reply. """
+    #bos, eos, speaker1, speaker2 = tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS[:-1])
+    #sequence = [[bos] + list(chain(*persona))] + history + [reply + ([eos] if with_eos else [])]
+    #sequence = [sequence[0]] + [[1 if (len(sequence)-i) % 2 else 0] + s for i, s in enumerate(sequence[1:])]
+    instance = {}
+    #instance["input_ids"] = " ".join(persona_faiss)
+    #instance["input_ids"] = " ".join(history[-1])
+    instance["input_ids"] = history  
+    instance["decoder_input_ids"] = persona_faiss
+    return instance
+
+def build_input_from_segments_faiss_2(persona_faiss, history_chatbot, with_eos=True):
+    """ Build a sequence of input from 3 segments: persona, history and last reply. """
+    #bos, eos, speaker1, speaker2 = tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS[:-1])
+    #sequence = [[bos] + list(chain(*persona))] + history + [reply + ([eos] if with_eos else [])]
+    #sequence = [sequence[0]] + [[1 if (len(sequence)-i) % 2 else 0] + s for i, s in enumerate(sequence[1:])]
+    instance = {}
+    #instance["input_ids"] = " ".join(persona_faiss)
+    #instance["input_ids"] = " ".join(history[-1])
+    instance["input_ids"] = ".".join(history_chatbot)   
+    instance["decoder_input_ids"] = " ".join(persona_faiss)
+    return instance
 
 def run():
     parser = ArgumentParser()
