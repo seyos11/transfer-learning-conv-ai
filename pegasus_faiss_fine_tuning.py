@@ -277,7 +277,8 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
       #weight_decay=0.01,
       logging_dir='./logs',            # directory for storing logs
       logging_steps=10,
-      learning_rate=0.1
+      #learning_rate=0.1
+      learning_rate = 0.0005
     )
 
     trainer = Trainer(
