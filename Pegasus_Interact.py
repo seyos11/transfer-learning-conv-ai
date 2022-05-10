@@ -112,16 +112,16 @@ def run():
     parser = ArgumentParser()
     parser.add_argument("--model_checkpoint", type=str, default="results2_3epochs_2batch/checkpoint-143500", help="Nucleus filtering (top-p) before sampling (<=0.0: no filtering)")
     args = parser.parse_args()
-    tokenizer = PegasusTokenizer.from_pretrained(args.model_checkpoint)
-    model = PegasusForConditionalGeneration.from_pretrained(args.model_checkpoint) 
-    model.to("cpu")
+#    tokenizer = PegasusTokenizer.from_pretrained(args.model_checkpoint)
+#    model = PegasusForConditionalGeneration.from_pretrained(args.model_checkpoint) 
+#    model.to("cpu")
     dataset = get_data_loaders()
     count= 0
     while True:
         print("History input:")
         print(dataset['valid']['input_ids'][count])
         print("\n Persona Input:")
-        print(dataset['valid']['decoder_input_ids'][count][1::2])
+        print(dataset['valid']['decoder_input_ids'][count])
         count = count + 1 
         raw_text = input(">>> ")
         while not raw_text:
