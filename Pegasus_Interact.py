@@ -28,7 +28,7 @@ import tempfile
 import socket
 from itertools import chain
 from argparse import ArgumentParser
-
+import random
 from transformers import cached_path
 
 
@@ -120,9 +120,9 @@ def run():
     count= 0
     while True:
         print("History input:")
-        print(dataset['valid']['input_ids'][count])
+        print(random.choice(dataset['valid']['input_ids'])
         print("\n Persona Input:")
-        print(dataset['valid']['decoder_input_ids'][count])
+        print(random.choice(dataset['valid']['decoder_input_ids'])
         count = count + 1 
         raw_text = input(">>> ")
         while not raw_text:
