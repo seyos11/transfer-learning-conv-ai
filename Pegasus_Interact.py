@@ -120,9 +120,9 @@ def run():
     count= 0
     while True:
         print("History input:")
-        print(random.choice(dataset['valid']['input_ids'])
+        print(random.choice(dataset['valid']['input_ids']))
         print("\n Persona Input:")
-        print(random.choice(dataset['valid']['decoder_input_ids'])
+        print(random.choice(dataset['valid']['decoder_input_ids']))
         count = count + 1 
         raw_text = input(">>> ")
         while not raw_text:
