@@ -213,7 +213,7 @@ def build_input_from_segments_faiss(persona_faiss, history, persona, with_eos=Tr
     #instance["input_ids"] = " ".join(history[-1])
     instance["input_ids"] = history  
     instance["decoder_input_ids"] = persona_faiss
-    isntance['total_persona'] = persona
+    instance['total_persona'] = persona
     return instance
 
 def build_input_from_segments_faiss_2(persona_faiss, history_chatbot, with_eos=True):
