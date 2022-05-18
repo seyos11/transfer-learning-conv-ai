@@ -151,7 +151,7 @@ def get_data_loaders_1sentence():
                 if len(history) > 1:
                     history_chatbot = history[1]
                     persona_selected = persona_selected_list[count_persona]
-                    instance = build_input_from_segments_faiss(persona_selected, history_chatbot)     
+                    instance = build_input_from_segments_faiss(persona_selected, history_chatbot, persona)     
                     for input_name, input_array in instance.items():
                         datasets[dataset_name][input_name].append(input_array)
                     count_persona = count_persona + 1
@@ -186,7 +186,7 @@ def get_data_loaders_4sentence():
                 if len(history) > 1:
                     history_chatbot = history[1]
                     persona_selected = persona_selected_list[count_persona]
-                    instance = build_input_from_segments_faiss(persona_selected, history_chatbot)     
+                    instance = build_input_from_segments_faiss(persona_selected, history_chatbot, persona)     
                     for input_name, input_array in instance.items():
                         datasets[dataset_name][input_name].append(input_array)
                     count_persona = count_persona + 1
@@ -203,7 +203,7 @@ def build_input_from_segments(persona, history, with_eos=True):
     return instance
 
 
-def build_input_from_segments_faiss(persona_faiss, history, with_eos=True):
+def build_input_from_segments_faiss(persona_faiss, history, persona, with_eos=True):
     """ Build a sequence of input from 3 segments: persona, history and last reply. """
     #bos, eos, speaker1, speaker2 = tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS[:-1])
     #sequence = [[bos] + list(chain(*persona))] + history + [reply + ([eos] if with_eos else [])]
@@ -213,6 +213,7 @@ def build_input_from_segments_faiss(persona_faiss, history, with_eos=True):
     #instance["input_ids"] = " ".join(history[-1])
     instance["input_ids"] = history  
     instance["decoder_input_ids"] = persona_faiss
+    isntance['total_persona'] = persona
     return instance
 
 def build_input_from_segments_faiss_2(persona_faiss, history_chatbot, with_eos=True):
@@ -231,7 +232,7 @@ def run():
     parser = ArgumentParser()
     parser.add_argument("--model_checkpoint", type=str, default="results2_3epochs_2batch/checkpoint-143500", help="model checkpoint to use")
     parser.add_argument("--data_faiss", type=str, default="data_faiss_pegasus_1generated.pkl", help="pickle data to recover faiss data")
-    parser.add_argument("--n_sentences", type=int, default= 2, help="sentences used to get faiss personality")
+    parser.add_argument("--n_sentences", type=int, default= 1, help="sentences used to get faiss personality")
 
     args = parser.parse_args()
     tokenizer = PegasusTokenizer.from_pretrained(args.model_checkpoint)
@@ -244,9 +245,11 @@ def run():
     count= 0
     while True:
         print("History  input:")
-        print(dataset['valid']['input_ids'][count])
+        print(random.choice(dataset['valid']['input_ids']))
         print("\n Persona Faiss Input:")
-        print(dataset['valid']['decoder_input_ids'][count])
+        print(random.choice(dataset['valid']['decoder_input_ids']))
+        print("\n Persona total input:")
+        print(random.choice(dataset['valid']['total_persona']))
         count = count +1
         raw_text = input(">>> ")
         while not raw_text:
