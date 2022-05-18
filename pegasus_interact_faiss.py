@@ -244,16 +244,13 @@ def run():
         dataset= get_data_loaders_1sentence()
     count= 0
     while True:
+        row = random.randint(0, 6800)
         print("History  input:")
-        print(random.choice(dataset['valid']['input_ids']))
+        print(random.choice(dataset['valid']['input_ids'][row]))
         print("\n Persona Faiss Input:")
-        print(random.choice(dataset['valid']['decoder_input_ids']))
+        print(random.choice(dataset['valid']['decoder_input_ids'][row]))
         print("\n Persona total input:")
-        print(random.choice(dataset['valid']['total_persona']))
-        print(len(dataset['valid']['total_persona']))
-        print(len(dataset['valid']['input_ids']))
-        print(len(dataset['valid']['decoder_input_ids']))
-        print(len(dataset['valid']))
+        print(random.choice(dataset['valid']['total_persona'][row]))
         count = count +1
         raw_text = input(">>> ")
         while not raw_text:
