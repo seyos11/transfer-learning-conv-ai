@@ -30,7 +30,7 @@ from itertools import chain
 from argparse import ArgumentParser
 import pickle
 from transformers import cached_path
-
+import random
 
 PERSONACHAT_URL = "https://s3.amazonaws.com/datasets.huggingface.co/personachat/personachat_self_original.json"
 
