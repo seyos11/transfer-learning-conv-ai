@@ -250,6 +250,8 @@ def run():
         print(random.choice(dataset['valid']['decoder_input_ids']))
         print("\n Persona total input:")
         print(random.choice(dataset['valid']['total_persona']))
+        print(len(dataset['valid']['total_persona'))
+        print(len(dataset['valid']))
         count = count +1
         raw_text = input(">>> ")
         while not raw_text:
