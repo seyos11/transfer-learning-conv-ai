@@ -19,7 +19,7 @@ from ignite.contrib.handlers import ProgressBar, PiecewiseLinear
 from ignite.contrib.handlers.tensorboard_logger import TensorboardLogger, OutputHandler, OptimizerParamsHandler
 from transformers import (AdamW, OpenAIGPTDoubleHeadsModel, OpenAIGPTTokenizer,
                                   GPT2DoubleHeadsModel, GPT2Tokenizer, WEIGHTS_NAME, CONFIG_NAME)
-
+from sklearn import preprocessing
 from utils_faiss import get_dataset, make_logdir, get_dataset_with_no_tokenizer
 from sentence_transformers import SentenceTransformer
 import faiss
@@ -114,7 +114,7 @@ def get_persona_faiss_selected(args):
             embeddings_persona = model.encode(persona, show_progress_bar=False)   
             # Step 1: Change data type
             embeddings_persona = np.array([embedding for embedding in embeddings_persona]).astype("float32")
-
+            embeddings_persona = preprocessing.normalize(embeddings_persona)
             # Step 2: Instantiate the index
             index = faiss.IndexFlatIP(embeddings_persona.shape[1])
 
@@ -132,7 +132,7 @@ def get_persona_faiss_selected(args):
             for _ in range(args.personality_permutations):
                 for utterance in dialog["utterances"]:
                     history = utterance["history"][-(2*args.max_history+1):]
-                    if len(history) > 1:                   
+                    if len(history) > 3:                   
                         #history_encoded = model.encode(history,show_progress_bar=False)
                         #history_splitted = " ".join(history)
                         #history_splitted = history[1] + ' ' + history[3]                                     
@@ -173,7 +173,7 @@ def train():
     parser.add_argument("--local_rank", type=int, default=-1, help="Local rank for distributed training (-1: not distributed)")
     args = parser.parse_args()
     data_obtained = get_persona_faiss_selected(args)
-    with open('data_faiss_pegasus_1generated.pkl', 'wb') as f:
+    with open('data_faiss_pegasus_1_sentence_final_generated.pkl', 'wb') as f:
         pickle.dump(data_obtained, f)
 
 if __name__ == "__main__":
