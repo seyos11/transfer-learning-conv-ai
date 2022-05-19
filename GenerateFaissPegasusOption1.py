@@ -19,7 +19,7 @@ from ignite.contrib.handlers import ProgressBar, PiecewiseLinear
 from ignite.contrib.handlers.tensorboard_logger import TensorboardLogger, OutputHandler, OptimizerParamsHandler
 from transformers import (AdamW, OpenAIGPTDoubleHeadsModel, OpenAIGPTTokenizer,
                                   GPT2DoubleHeadsModel, GPT2Tokenizer, WEIGHTS_NAME, CONFIG_NAME)
-
+from sklearn import preprocessing
 from utils_faiss import get_dataset, make_logdir, get_dataset_with_no_tokenizer
 from sentence_transformers import SentenceTransformer
 import faiss
@@ -93,6 +93,7 @@ def get_persona_faiss_selected(args):
     history_faiss_selected = []
     persona_faiss_index = []
     history_faiss_index = []
+    score_faiss = []
     persona_complete = parse_data('./Dataset/train_self_original.txt')
     model = SentenceTransformer('all-mpnet-base-v2')
     count = 0
@@ -114,7 +115,7 @@ def get_persona_faiss_selected(args):
             embeddings_persona = model.encode(persona, show_progress_bar=False)   
             # Step 1: Change data type
             embeddings_persona = np.array([embedding for embedding in embeddings_persona]).astype("float32")
-
+            embeddings_persona = preprocessing.normalize(embeddings_persona)
             # Step 2: Instantiate the index
             index = faiss.IndexFlatIP(embeddings_persona.shape[1])
 
@@ -132,28 +133,25 @@ def get_persona_faiss_selected(args):
             for _ in range(args.personality_permutations):
                 for utterance in dialog["utterances"]:
                     history = utterance["history"][-(2*args.max_history+1):]
-                    if len(history) > (len(persona) - 1):                   
+                    if len(history) > 4:                   
                         #history_encoded = model.encode(history,show_progress_bar=False)
                         #history_splitted = " ".join(history)
                         #history_splitted = history[1] + ' ' + history[3]                                     
                         history_splitted = history[1::2]
-
-                        history_encoded = model.encode(history_splitted,show_progress_bar=False)
-                        
-                        if len(persona)  < 4:  
-                            history_splitted = history[1]
-
-                            history_encoded = model.encode([history_splitted],show_progress_bar=False)  
+                        score_list = []
+                        history_encoded = model.encode(history_splitted,show_progress_bar=False) 
                         D, I = index.search(np.array(history_encoded), k=len(persona))
                         persona_list = []
                         persona_list = [persona[I[0][0]]] + [persona[I[0][1]]] 
                         history_faiss_selected.append(history)
                         #persona_faiss_selected.append(persona[I[0][0]])
                         persona_faiss_selected.append(persona_list)
-                            
+                        for i in range(0,len(I[0])):
+                            score_list.append((I[0][i],D[0][i]))
+                        score_faiss.append(score_list)
                 #persona = [persona[-1]] + persona[:-1]  # permuted personalities
         #break
-    return persona_faiss_selected
+    return persona_faiss_selected, score_faiss
 
 
 def train():
@@ -177,9 +175,11 @@ def train():
     parser.add_argument("--fp16", type=str, default="", help="Set to O0, O1, O2 or O3 for fp16 training (see apex documentation)")
     parser.add_argument("--local_rank", type=int, default=-1, help="Local rank for distributed training (-1: not distributed)")
     args = parser.parse_args()
-    data_obtained = get_persona_faiss_selected(args)
+    data_obtained,score = get_persona_faiss_selected(args)
     with open('data_faiss_pegasus_2generated.pkl', 'wb') as f:
         pickle.dump(data_obtained, f)
+    with open('score_faiss_pegasus_2generated.pkl', 'wb') as f:
+        pickle.dump(score, f)
 
 if __name__ == "__main__":
     train()
