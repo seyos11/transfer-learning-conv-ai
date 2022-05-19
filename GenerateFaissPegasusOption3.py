@@ -131,19 +131,14 @@ def get_persona_faiss_selected(args):
             #data_train list of set of list of all personalities (not duplicated)
             for _ in range(args.personality_permutations):
                 for utterance in dialog["utterances"]:
-                    history = utterance["history"][-(2*args.max_history+1):]
-                    if len(history) > (len(persona) - 1):                   
+                    history = utterance["history"][-(2*args.max_history+3):]
+                    if len(history) > 6:                   
                         #history_encoded = model.encode(history,show_progress_bar=False)
                         #history_splitted = " ".join(history)
                         #history_splitted = history[1] + ' ' + history[3]                                     
                         history_splitted = history[1::2]
 
                         history_encoded = model.encode(history_splitted,show_progress_bar=False)
-                        
-                        if len(persona)  < 4:  
-                            history_splitted = history[1]
-
-                            history_encoded = model.encode([history_splitted],show_progress_bar=False)  
                         D, I = index.search(np.array(history_encoded), k=len(persona))
                         persona_list = []
                         persona_list = [persona[I[0][0]]] + [persona[I[0][1]]] + [persona[I[0][2]]]
@@ -154,7 +149,6 @@ def get_persona_faiss_selected(args):
                 #persona = [persona[-1]] + persona[:-1]  # permuted personalities
         #break
     return persona_faiss_selected
-
 
 def train():
     parser = ArgumentParser()
