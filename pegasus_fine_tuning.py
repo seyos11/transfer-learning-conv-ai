@@ -93,6 +93,41 @@ def get_data_loaders():
                         datasets[dataset_name][input_name].append(input_array) 
     return datasets
 
+
+def get_data_loaders_final():
+    """ Prepare the dataset for training and evaluation """
+    dataset_path = ""
+    dataset_cache = None
+    personachat = get_dataset(dataset_path, dataset_cache)
+
+    logger.info("Build inputs and labels")
+    datasets = {"train": defaultdict(list), "valid": defaultdict(list)}
+    personality = []
+    history_complete = []
+    count_persona = 0
+    for dataset_name, dataset in personachat.items():
+        num_candidates = len(dataset[0]["utterances"][0]["candidates"])
+        if num_candidates > 0 and dataset_name == 'train':
+            num_candidates = min(1, num_candidates)
+        for dialog in dataset:
+            persona = dialog["persona_info"].copy()
+            #datasets[personality].append(persona)
+            count_history = 0
+            for utterance in dialog["utterances"]:
+                count_history = count_history + 1
+                history = utterance["history"][-(2*2+5):]
+                #history_complete.append(history)
+                if len(persona) == 4:
+                    if len(history) > (len(persona)+3):
+                        history_chatbot = history[1::2]
+                        #persona_selected = persona_selected_list[count_persona]
+                        instance = build_input_from_segments(persona, history_chatbot)     
+                        for input_name, input_array in instance.items():
+                            datasets[dataset_name][input_name].append(input_array)
+                        count_persona = count_persona + 1
+    return datasets
+
+
 def build_input_from_segments(persona, history, with_eos=True):
     """ Build a sequence of input from 3 segments: persona, history and last reply. """
     #bos, eos, speaker1, speaker2 = tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS[:-1])
@@ -142,7 +177,7 @@ def prepare_data(model_name,
   return train_dataset, val_dataset, test_dataset, tokenizer
 
 
-def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./result_5epochs_8batch_01learningrate'):
+def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./result_5epochs_8batch_01learningrate_200522_final'):
   """
   Prepare configurations and base model for fine-tuning
   """
@@ -183,7 +218,7 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
       num_train_epochs=5,           # total number of training epochs
       per_device_train_batch_size=8,   # batch size per device during training, can increase if memory allows
       save_steps=500,                  # number of updates steps before checkpoint saves
-      save_total_limit=5,              # limit the total amount of checkpoints and deletes the older checkpoints
+      #save_total_limit=5,              # limit the total amount of checkpoints and deletes the older checkpoints
       warmup_steps=500,                # number of warmup steps for learning rate scheduler
       weight_decay=0.1,               # strength of weight decay
       #weight_decay=0.01,
@@ -207,7 +242,7 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
 if __name__=='__main__':
   # use XSum dataset as example, with first 1000 docs as training data
   from datasets import load_dataset
-  dataset = get_data_loaders()
+  dataset = get_data_loaders_final()
   #dataset = load_dataset("xsum")
   train_texts, train_labels = dataset['train']['input_ids'], dataset['train']['decoder_input_ids']
   
