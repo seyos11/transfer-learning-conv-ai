@@ -177,7 +177,7 @@ def prepare_data(model_name,
   return train_dataset, val_dataset, test_dataset, tokenizer
 
 
-def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./result_5epochs_8batch_01learningrate_200522_final'):
+def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./result_5epochs_8batch_01learningrate_200522_final_validation'):
   """
   Prepare configurations and base model for fine-tuning
   """
@@ -192,16 +192,18 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
     training_args = TrainingArguments(
       output_dir=output_dir,           # output directory
       num_train_epochs=3,           # total number of training epochs
-      per_device_train_batch_size=1,   # batch size per device during training, can increase if memory allows
-      per_device_eval_batch_size=1,    # batch size for evaluation, can increase if memory allows
+      per_device_train_batch_size=8,   # batch size per device during training, can increase if memory allows
+      per_device_eval_batch_size=8,    # batch size for evaluation, can increase if memory allows
       save_steps=500,                  # number of updates steps before checkpoint saves
-      save_total_limit=5,              # limit the total amount of checkpoints and deletes the older checkpoints
+      save_total_limit=1,              # limit the total amount of checkpoints and deletes the older checkpoints
       evaluation_strategy='steps',     # evaluation strategy to adopt during training
       eval_steps=100,                  # number of update steps before evaluation
       warmup_steps=500,                # number of warmup steps for learning rate scheduler
-      weight_decay=0.01,               # strength of weight decay
+      weight_decay=0.1,               # strength of weight decay
       logging_dir='./logs1',            # directory for storing logs
       logging_steps=10,
+      learning_rate=0.0005
+
     )
 
     trainer = Trainer(
@@ -217,7 +219,7 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
       output_dir=output_dir,           # output directory
       num_train_epochs=5,           # total number of training epochs
       per_device_train_batch_size=8,   # batch size per device during training, can increase if memory allows
-      save_steps=500,                  # number of updates steps before checkpoint saves
+      #save_steps=500,                  # number of updates steps before checkpoint saves
       #save_total_limit=5,              # limit the total amount of checkpoints and deletes the older checkpoints
       warmup_steps=500,                # number of warmup steps for learning rate scheduler
       weight_decay=0.1,               # strength of weight decay
@@ -245,12 +247,12 @@ if __name__=='__main__':
   dataset = get_data_loaders_final()
   #dataset = load_dataset("xsum")
   train_texts, train_labels = dataset['train']['input_ids'], dataset['train']['decoder_input_ids']
-  
+  valid_texts, valid_labels = dataset['valid']['input_ids'], dataset['valid']['input_ids']
   # use Pegasus Large model as base for fine-tuning
   model_name = 'google/pegasus-large'
   #model_name = 'google/pegasus-xsum'
-  train_dataset, _, _, tokenizer = prepare_data(model_name, train_texts, train_labels)
-  trainer = prepare_fine_tuning(model_name, tokenizer, train_dataset)
+  train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
+  trainer = prepare_fine_tuning(model_name, tokenizer, train_dataset,val_dataset=valid_dataset)
   trainer.train()
   
   
