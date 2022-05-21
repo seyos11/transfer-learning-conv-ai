@@ -529,7 +529,7 @@ if __name__=='__main__':
   # use Pegasus Large model as base for fine-tuning
   model_name = 'google/pegasus-large'
   train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
-  trainer = prepare_fine_tuning_faiss3x3(model_name, tokenizer, train_dataset,val_dataset=valid_dataset)
+  trainer = prepare_fine_tuning(model_name, tokenizer, train_dataset,val_dataset=valid_dataset)
   trainer.train()
   
   
