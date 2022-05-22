@@ -75,7 +75,7 @@ def get_data_loaders():
     personality = []
     history_complete = []
     count_persona = 0
-    with open('data_faiss_pegasus_2generated.pkl', 'rb') as f:
+    with open('data_faiss_pegasus_2sentences_finalgenerated.pkl', 'rb') as f:
         persona_selected_list = pickle.load(f)
     for dataset_name, dataset in personachat.items():
         num_candidates = len(dataset[0]["utterances"][0]["candidates"])
@@ -146,7 +146,7 @@ def get_data_loaders_3sentences():
     personality = []
     history_complete = []
     count_persona = 0
-    with open('data_faiss_pegasus_2generated.pkl', 'rb') as f:
+    with open('data_faiss_pegasus_3generated.pkl', 'rb') as f:
         persona_selected_list = pickle.load(f)
     for dataset_name, dataset in personachat.items():
         num_candidates = len(dataset[0]["utterances"][0]["candidates"])
@@ -277,7 +277,7 @@ def prepare_data(model_name,
   return train_dataset, val_dataset, test_dataset, tokenizer
 
 
-def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./results_4epochs_8batch_faiss_2sentences_lr00005_final_210522'):
+def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./result_final_normal_4x4'):
   """
   Prepare configurations and base model for fine-tuning
   """
@@ -339,7 +339,7 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
 
   return trainer
 
-def prepare_fine_tuning_faiss1x1(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./results_5epochs_16batch_faiss_1sentences_lr00005'):
+def prepare_fine_tuning_faiss1x1(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./result_final_faiss_1x1'):
   """
   Prepare configurations and base model for fine-tuning
   """
@@ -353,17 +353,18 @@ def prepare_fine_tuning_faiss1x1(model_name, tokenizer, train_dataset, val_datas
   if val_dataset is not None:
     training_args = TrainingArguments(
       output_dir=output_dir,           # output directory
-      num_train_epochs=3,           # total number of training epochs
-      per_device_train_batch_size=1,   # batch size per device during training, can increase if memory allows
-      per_device_eval_batch_size=1,    # batch size for evaluation, can increase if memory allows
+      num_train_epochs=1,           # total number of training epochs
+      per_device_train_batch_size=8,   # batch size per device during training, can increase if memory allows
+      per_device_eval_batch_size=8,    # batch size for evaluation, can increase if memory allows
       save_steps=500,                  # number of updates steps before checkpoint saves
-      save_total_limit=5,              # limit the total amount of checkpoints and deletes the older checkpoints
+      save_total_limit=1,              # limit the total amount of checkpoints and deletes the older checkpoints
       evaluation_strategy='steps',     # evaluation strategy to adopt during training
       eval_steps=100,                  # number of update steps before evaluation
       warmup_steps=500,                # number of warmup steps for learning rate scheduler
-      weight_decay=0.01,               # strength of weight decay
+      weight_decay=0.0,               # strength of weight decay
       logging_dir='./logs1',            # directory for storing logs
       logging_steps=10,
+      learning_rate = 0.0005
     )
 
     trainer = Trainer(
@@ -399,7 +400,7 @@ def prepare_fine_tuning_faiss1x1(model_name, tokenizer, train_dataset, val_datas
 
   return trainer
 
-def prepare_fine_tuning_faiss2x2(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./results_5epochs_16batch_faiss_1sentences_lr00005'):
+def prepare_fine_tuning_faiss2x2(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./result_final_faiss_2x2'):
   """
   Prepare configurations and base model for fine-tuning
   """
@@ -413,17 +414,18 @@ def prepare_fine_tuning_faiss2x2(model_name, tokenizer, train_dataset, val_datas
   if val_dataset is not None:
     training_args = TrainingArguments(
       output_dir=output_dir,           # output directory
-      num_train_epochs=3,           # total number of training epochs
-      per_device_train_batch_size=1,   # batch size per device during training, can increase if memory allows
-      per_device_eval_batch_size=1,    # batch size for evaluation, can increase if memory allows
+      num_train_epochs=1,           # total number of training epochs
+      per_device_train_batch_size=8,   # batch size per device during training, can increase if memory allows
+      per_device_eval_batch_size=8,    # batch size for evaluation, can increase if memory allows
       save_steps=500,                  # number of updates steps before checkpoint saves
-      save_total_limit=5,              # limit the total amount of checkpoints and deletes the older checkpoints
+      save_total_limit=1,              # limit the total amount of checkpoints and deletes the older checkpoints
       evaluation_strategy='steps',     # evaluation strategy to adopt during training
       eval_steps=100,                  # number of update steps before evaluation
       warmup_steps=500,                # number of warmup steps for learning rate scheduler
       weight_decay=0.01,               # strength of weight decay
-      logging_dir='./logs1',            # directory for storing logs
+      logging_dir='./logs2',            # directory for storing logs
       logging_steps=10,
+      learning_rate = 0.0005
     )
 
     trainer = Trainer(
@@ -459,7 +461,7 @@ def prepare_fine_tuning_faiss2x2(model_name, tokenizer, train_dataset, val_datas
 
   return trainer
 
-def prepare_fine_tuning_faiss3x3(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./results_5epochs_16batch_faiss_1sentences_lr00005'):
+def prepare_fine_tuning_faiss3x3(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./result_final_faiss_3x3'):
   """
   Prepare configurations and base model for fine-tuning
   """
@@ -473,17 +475,18 @@ def prepare_fine_tuning_faiss3x3(model_name, tokenizer, train_dataset, val_datas
   if val_dataset is not None:
     training_args = TrainingArguments(
       output_dir=output_dir,           # output directory
-      num_train_epochs=3,           # total number of training epochs
-      per_device_train_batch_size=1,   # batch size per device during training, can increase if memory allows
-      per_device_eval_batch_size=1,    # batch size for evaluation, can increase if memory allows
+      num_train_epochs=1,           # total number of training epochs
+      per_device_train_batch_size=8,   # batch size per device during training, can increase if memory allows
+      per_device_eval_batch_size=8,    # batch size for evaluation, can increase if memory allows
       save_steps=500,                  # number of updates steps before checkpoint saves
-      save_total_limit=5,              # limit the total amount of checkpoints and deletes the older checkpoints
+      save_total_limit=1,              # limit the total amount of checkpoints and deletes the older checkpoints
       evaluation_strategy='steps',     # evaluation strategy to adopt during training
       eval_steps=100,                  # number of update steps before evaluation
       warmup_steps=500,                # number of warmup steps for learning rate scheduler
       weight_decay=0.01,               # strength of weight decay
       logging_dir='./logs1',            # directory for storing logs
       logging_steps=10,
+      learning_rate = 0.0005
     )
 
     trainer = Trainer(
@@ -528,9 +531,26 @@ if __name__=='__main__':
 
   # use Pegasus Large model as base for fine-tuning
   model_name = 'google/pegasus-large'
+  model_name_1 = './result_final_normal_4x4'
+  model_name_2 = './result_final_faiss_1x1'
+  model_name_3 = './result_final_faiss_2x2'
+  model_name_4 = './result_final_faiss_3x3'
   train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
   trainer = prepare_fine_tuning(model_name, tokenizer, train_dataset,val_dataset=valid_dataset)
   trainer.train()
+  
+  train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name_1, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
+  trainer2 = prepare_fine_tuning_faiss1x1(model_name_1, tokenizer, train_dataset,val_dataset=valid_dataset)
+  trainer2.train()
+  
+  train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name_2, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
+  trainer3 = prepare_fine_tuning_faiss2x2(model_name_2, tokenizer, train_dataset,val_dataset=valid_dataset)
+  trainer3.train()
+  
+  train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name_3, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
+  trainer4 = prepare_fine_tuning_faiss3x3(model_name_3, tokenizer, train_dataset,val_dataset=valid_dataset)
+  trainer4.train()
+  
   
   
 '''   # Check results
