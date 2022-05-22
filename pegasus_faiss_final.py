@@ -531,13 +531,17 @@ if __name__=='__main__':
 
   # use Pegasus Large model as base for fine-tuning
   model_name = 'google/pegasus-large'
-  model_name_1 = './result_final_normal_4x4'
-  model_name_2 = './result_final_faiss_1x1'
-  model_name_3 = './result_final_faiss_2x2'
-  model_name_4 = './result_final_faiss_3x3'
-  train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
-  trainer = prepare_fine_tuning(model_name, tokenizer, train_dataset,val_dataset=valid_dataset)
-  trainer.train()
+  files = os.listdir('result_final_normal_4x4/')
+  model_name_1 = './result_final_normal_4x4/' + files[0]
+  files = os.listdir('result_final_normal_1x1/')
+  model_name_2 = './result_final_faiss_1x1' + files[0]
+  files = os.listdir('result_final_normal_2x2/')
+  model_name_3 = './result_final_faiss_2x2' + files[0]
+  files = os.listdir('result_final_normal_3x3/')
+  model_name_4 = './result_final_faiss_3x3' + files[0]
+  #train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
+  #trainer = prepare_fine_tuning(model_name, tokenizer, train_dataset,val_dataset=valid_dataset)
+  #trainer.train()
   
   train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name_1, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
   trainer2 = prepare_fine_tuning_faiss1x1(model_name_1, tokenizer, train_dataset,val_dataset=valid_dataset)
