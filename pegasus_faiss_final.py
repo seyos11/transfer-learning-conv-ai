@@ -277,7 +277,7 @@ def prepare_data(model_name,
   return train_dataset, val_dataset, test_dataset, tokenizer
 
 
-def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./results_4epochs_16batch_faiss_2sentences_lr00005_final_210522'):
+def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./results_4epochs_8batch_faiss_2sentences_lr00005_final_210522'):
   """
   Prepare configurations and base model for fine-tuning
   """
@@ -292,8 +292,8 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
     training_args = TrainingArguments(
       output_dir=output_dir,           # output directory
       num_train_epochs=4,           # total number of training epochs
-      per_device_train_batch_size=16,   # batch size per device during training, can increase if memory allows
-      per_device_eval_batch_size=16,    # batch size for evaluation, can increase if memory allows
+      per_device_train_batch_size=8,   # batch size per device during training, can increase if memory allows
+      per_device_eval_batch_size=8,    # batch size for evaluation, can increase if memory allows
       save_steps=500,                  # number of updates steps before checkpoint saves
       save_total_limit=1,              # limit the total amount of checkpoints and deletes the older checkpoints
       evaluation_strategy='epoch',     # evaluation strategy to adopt during training
