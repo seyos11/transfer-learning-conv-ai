@@ -277,7 +277,7 @@ def prepare_data(model_name,
   return train_dataset, val_dataset, test_dataset, tokenizer
 
 
-def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./results_5epochs_16batch_faiss_1sentences_lr00005_final_210522'):
+def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./results_4epochs_16batch_faiss_2sentences_lr00005_final_210522'):
   """
   Prepare configurations and base model for fine-tuning
   """
@@ -521,7 +521,7 @@ def prepare_fine_tuning_faiss3x3(model_name, tokenizer, train_dataset, val_datas
 if __name__=='__main__':
   # use XSum dataset as example, with first 1000 docs as training data
   from datasets import load_dataset
-  dataset = get_data_loaders_1sentence()
+  dataset = get_data_loaders()
   #dataset = load_dataset("xsum")
   train_texts, train_labels = dataset['train']['input_ids'], dataset['train']['decoder_input_ids']
   valid_texts, valid_labels = dataset['valid']['input_ids'], dataset['valid']['input_ids']
