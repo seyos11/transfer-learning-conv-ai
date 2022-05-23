@@ -295,6 +295,7 @@ def run():
     count= 0
     while True:
         row = random.randint(0, len(dataset['valid']['input_ids']))
+        print(len(dataset['valid']['input_ids']))
         print("History  input:")
         print(dataset['valid']['input_ids'][row])
         print("\n Persona Faiss Input:")
