@@ -541,16 +541,16 @@ if __name__=='__main__':
   #trainer = prepare_fine_tuning(model_name, tokenizer, train_dataset,val_dataset=valid_dataset)
   #trainer.train()
   
-  train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name_1, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
-  trainer2 = prepare_fine_tuning_faiss1x1(model_name_1, tokenizer, train_dataset,val_dataset=valid_dataset)
-  trainer2.train()
+  #train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name_1, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
+  #trainer2 = prepare_fine_tuning_faiss1x1(model_name_1, tokenizer, train_dataset,val_dataset=valid_dataset)
+  #trainer2.train()
   
-  files = os.listdir('result_final_normal_1x1/')
+  files = os.listdir('result_final_faiss_1x1/')
   model_name_2 = './result_final_faiss_1x1' + files[0]
   train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name_2, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
   trainer3 = prepare_fine_tuning_faiss2x2(model_name_2, tokenizer, train_dataset,val_dataset=valid_dataset)
   trainer3.train()
-  files = os.listdir('result_final_normal_2x2/')
+  files = os.listdir('result_final_faiss_2x2/')
   model_name_3 = './result_final_faiss_2x2' + files[0]
   train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name_3, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
   trainer4 = prepare_fine_tuning_faiss3x3(model_name_3, tokenizer, train_dataset,val_dataset=valid_dataset)
