@@ -533,10 +533,8 @@ if __name__=='__main__':
   model_name = 'google/pegasus-large'
   files = os.listdir('result_final_normal_4x4/')
   model_name_1 = './result_final_normal_4x4/' + files[0]
-  files = os.listdir('result_final_normal_1x1/')
-  model_name_2 = './result_final_faiss_1x1' + files[0]
-  files = os.listdir('result_final_normal_2x2/')
-  model_name_3 = './result_final_faiss_2x2' + files[0]
+
+
   files = os.listdir('result_final_normal_3x3/')
   model_name_4 = './result_final_faiss_3x3' + files[0]
   #train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
@@ -547,10 +545,13 @@ if __name__=='__main__':
   trainer2 = prepare_fine_tuning_faiss1x1(model_name_1, tokenizer, train_dataset,val_dataset=valid_dataset)
   trainer2.train()
   
+  files = os.listdir('result_final_normal_1x1/')
+  model_name_2 = './result_final_faiss_1x1' + files[0]
   train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name_2, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
   trainer3 = prepare_fine_tuning_faiss2x2(model_name_2, tokenizer, train_dataset,val_dataset=valid_dataset)
   trainer3.train()
-  
+  files = os.listdir('result_final_normal_2x2/')
+  model_name_3 = './result_final_faiss_2x2' + files[0]
   train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name_3, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
   trainer4 = prepare_fine_tuning_faiss3x3(model_name_3, tokenizer, train_dataset,val_dataset=valid_dataset)
   trainer4.train()
