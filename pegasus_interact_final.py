@@ -34,7 +34,7 @@ import pickle
 from transformers import cached_path
 import random
 from datasets import load_metric
-
+from tqdm import tqdm
 PERSONACHAT_URL = "https://s3.amazonaws.com/datasets.huggingface.co/personachat/personachat_self_original.json"
 
 logger = logging.getLogger(__file__)
@@ -324,13 +324,14 @@ def run():
     model.to("cpu")
     dataset = get_data_loaders()        
     predictedTokens4x4 = []  
-    for i in dataset['valid']['input_ids']:
+    for i in tqdm(dataset['valid']['input_ids']):
         batch = tokenizer(i, truncation=True, padding="longest", return_tensors="pt").to('cpu')
         predictedTokens4x4.append(model.generate(**batch))
     metric4x4 = load_metric('bleu')
     metric4x4.compute(predicionts=predictedTokens4x4, references = dataset['valid']['decoder_input_ids'])     
+    print(metric4x4)
 
-    dataset = get_data_loaders()        
+'''     dataset = get_data_loaders()        
     predictedTokens1x1 = []  
     for i in dataset['valid']['input_ids']:
         batch = tokenizer(i, truncation=True, padding="longest", return_tensors="pt").to('cpu')
@@ -354,11 +355,8 @@ def run():
         predictedTokens3x3.append(model.generate(**batch))
     metric3x3 = load_metric('bleu')
     metric3x3.compute(predicionts=predictedTokens3x3, references = dataset['valid']['decoder_input_ids'])
-
-    
-    
     print(metric1x1)
-    print(metric2x2)
+    print(metric2x2) '''
 ''' def compute_metrics(eval_pred):
     
     logits, labels = eval_pred
