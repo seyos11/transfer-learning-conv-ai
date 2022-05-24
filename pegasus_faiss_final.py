@@ -334,7 +334,7 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
   if val_dataset is not None:
     training_args = TrainingArguments(
       output_dir=output_dir,           # output directory
-      num_train_epochs=4,           # total number of training epochs
+      num_train_epochs=1,           # total number of training epochs
       per_device_train_batch_size=8,   # batch size per device during training, can increase if memory allows
       per_device_eval_batch_size=8,    # batch size for evaluation, can increase if memory allows
       save_steps=500,                  # number of updates steps before checkpoint saves
@@ -345,7 +345,7 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
       weight_decay=0.1,               # strength of weight decay
       logging_dir='./logs1',            # directory for storing logs
       logging_steps=10,
-      compute_metrics=compute_metrics(eval_pred)
+      compute_metrics=compute_metrics,
       learning_rate = 0.0005
 
     )
@@ -402,10 +402,10 @@ def prepare_fine_tuning_faiss1x1(model_name, tokenizer, train_dataset, val_datas
       per_device_eval_batch_size=8,    # batch size for evaluation, can increase if memory allows
       save_steps=500,                  # number of updates steps before checkpoint saves
       save_total_limit=1,              # limit the total amount of checkpoints and deletes the older checkpoints
-      evaluation_strategy='steps',     # evaluation strategy to adopt during training
+      evaluation_strategy='epoch',     # evaluation strategy to adopt during training
       eval_steps=100,                  # number of update steps before evaluation
       warmup_steps=500,                # number of warmup steps for learning rate scheduler
-      weight_decay=0.0,               # strength of weight decay
+      weight_decay=0.1,               # strength of weight decay
       logging_dir='./logs1',            # directory for storing logs
       logging_steps=10,
       learning_rate = 0.0005
@@ -471,7 +471,7 @@ def prepare_fine_tuning_faiss2x2(model_name, tokenizer, train_dataset, val_datas
       per_device_eval_batch_size=8,    # batch size for evaluation, can increase if memory allows
       save_steps=500,                  # number of updates steps before checkpoint saves
       save_total_limit=1,              # limit the total amount of checkpoints and deletes the older checkpoints
-      evaluation_strategy='steps',     # evaluation strategy to adopt during training
+      evaluation_strategy='epoch',     # evaluation strategy to adopt during training
       eval_steps=100,                  # number of update steps before evaluation
       warmup_steps=500,                # number of warmup steps for learning rate scheduler
       weight_decay=0.01,               # strength of weight decay
@@ -540,7 +540,7 @@ def prepare_fine_tuning_faiss3x3(model_name, tokenizer, train_dataset, val_datas
       per_device_eval_batch_size=8,    # batch size for evaluation, can increase if memory allows
       save_steps=500,                  # number of updates steps before checkpoint saves
       save_total_limit=1,              # limit the total amount of checkpoints and deletes the older checkpoints
-      evaluation_strategy='steps',     # evaluation strategy to adopt during training
+      evaluation_strategy='epoch',     # evaluation strategy to adopt during training
       eval_steps=100,                  # number of update steps before evaluation
       warmup_steps=500,                # number of warmup steps for learning rate scheduler
       weight_decay=0.01,               # strength of weight decay
@@ -594,18 +594,18 @@ if __name__=='__main__':
   # use Pegasus Large model as base for fine-tuning
   model_name = 'google/pegasus-large'
 
-  #train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
-  #trainer = prepare_fine_tuning(model_name, tokenizer, train_dataset,val_dataset=valid_dataset)
-  #trainer.train()
+  train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
+  trainer = prepare_fine_tuning(model_name, tokenizer, train_dataset,val_dataset=valid_dataset)
+  trainer.train()
   files = os.listdir('result_final_normal_4x4/')
   model_name_1 = './result_final_normal_4x4/' + files[0]
   dataset = get_data_loaders_1sentence()
-  #dataset = load_dataset("xsum")
+  dataset = load_dataset("xsum")
   train_texts, train_labels = dataset['train']['input_ids'], dataset['train']['decoder_input_ids']
   valid_texts, valid_labels = dataset['valid']['input_ids'], dataset['valid']['input_ids']
-  #train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name_1, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
-  #trainer2 = prepare_fine_tuning_faiss1x1(model_name_1, tokenizer, train_dataset,val_dataset=valid_dataset)
-  #trainer2.train()
+  train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name_1, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
+  trainer2 = prepare_fine_tuning_faiss1x1(model_name_1, tokenizer, train_dataset,val_dataset=valid_dataset)
+  trainer2.train()
   
   files = os.listdir('result_final_faiss_1x1/')
   model_name_2 = './result_final_faiss_1x1/' + files[0]
@@ -613,9 +613,9 @@ if __name__=='__main__':
   #dataset = load_dataset("xsum")
   train_texts, train_labels = dataset['train']['input_ids'], dataset['train']['decoder_input_ids']
   valid_texts, valid_labels = dataset['valid']['input_ids'], dataset['valid']['input_ids']
-  #train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name_2, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
-  #trainer3 = prepare_fine_tuning_faiss2x2(model_name_2, tokenizer, train_dataset,val_dataset=valid_dataset)
-  #trainer3.train()
+  train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name_2, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
+  trainer3 = prepare_fine_tuning_faiss2x2(model_name_2, tokenizer, train_dataset,val_dataset=valid_dataset)
+  trainer3.train()
   
   files = os.listdir('result_final_faiss_2x2/')
   model_name_3 = './result_final_faiss_2x2/' + files[0]
