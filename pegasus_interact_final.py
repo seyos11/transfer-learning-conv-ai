@@ -336,6 +336,7 @@ def run():
         output = model.generate(**batch)
         print(output)
         print(batch2)
+        print(batch1)
         #predictedTokens4x4.append(model.generate(**batch))
         metric4x4.add(prediction=output, reference=dataset['valid']['decoder_input_ids'][0])    
         count = count + 1
