@@ -28,7 +28,7 @@ import tarfile
 import tempfile
 import socket
 from itertools import chain
-
+from datasets import load_metric
 from transformers import cached_path
 
 PERSONACHAT_URL = "https://s3.amazonaws.com/datasets.huggingface.co/personachat/personachat_self_original.json"
@@ -45,7 +45,8 @@ class PegasusDataset(torch.utils.data.Dataset):
         return item
     def __len__(self):
         return len(self.labels['input_ids'])  # len(self.labels)
-    
+
+  
 def get_dataset(dataset_path, dataset_cache=None):
     """ Get PERSONACHAT from S3 """
     dataset_path = dataset_path or PERSONACHAT_URL
@@ -318,7 +319,14 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
   """
   torch_device = 'cuda' if torch.cuda.is_available() else 'cpu'
   model = PegasusForConditionalGeneration.from_pretrained(model_name).to(torch_device)
+  metric = load_metric("accuracy")
+  def compute_metrics(eval_pred):
+        
+    logits, labels = eval_pred
 
+    predictions = np.argmax(logits, axis=-1)
+
+    return metric.compute(predictions=predictions, references=labels)
   if freeze_encoder:
     for param in model.model.encoder.parameters():
       param.requires_grad = False
@@ -337,6 +345,7 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
       weight_decay=0.1,               # strength of weight decay
       logging_dir='./logs1',            # directory for storing logs
       logging_steps=10,
+      compute_metrics=compute_metrics(eval_pred)
       learning_rate = 0.0005
 
     )
@@ -441,7 +450,15 @@ def prepare_fine_tuning_faiss2x2(model_name, tokenizer, train_dataset, val_datas
   """
   torch_device = 'cuda' if torch.cuda.is_available() else 'cpu'
   model = PegasusForConditionalGeneration.from_pretrained(model_name).to(torch_device)
+  metric = load_metric("accuracy")
+  def compute_metrics(eval_pred):
+        
+    logits, labels = eval_pred
 
+    predictions = np.argmax(logits, axis=-1)
+
+    return metric.compute(predictions=predictions, references=labels)
+  
   if freeze_encoder:
     for param in model.model.encoder.parameters():
       param.requires_grad = False
@@ -460,6 +477,7 @@ def prepare_fine_tuning_faiss2x2(model_name, tokenizer, train_dataset, val_datas
       weight_decay=0.01,               # strength of weight decay
       logging_dir='./logs2',            # directory for storing logs
       logging_steps=10,
+      compute_metrics=compute_metrics,
       learning_rate = 0.0005
     )
 
@@ -559,6 +577,7 @@ def prepare_fine_tuning_faiss3x3(model_name, tokenizer, train_dataset, val_datas
 if __name__=='__main__':
   # use XSum dataset as example, with first 1000 docs as training data
   from datasets import load_dataset
+  
   dataset = get_data_loaders()
   #dataset = load_dataset("xsum")
   train_texts, train_labels = dataset['train']['input_ids'], dataset['train']['decoder_input_ids']
