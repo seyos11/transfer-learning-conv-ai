@@ -332,15 +332,13 @@ def run():
     count = 0
     for i in tqdm(dataset['valid']['input_ids']):
         batch = tokenizer(i, truncation=True, padding="longest", return_tensors="pt").to('cpu')
-        #batch2 = tokenizer(dataset['valid']['decoder_input_ids'][count],truncation=True, padding="longest", return_tensors="pt").to('cpu')
+        batch2 = tokenizer(dataset['valid']['decoder_input_ids'][count],truncation=True, padding="longest", return_tensors="pt").to('cpu')
         output = model.generate(**batch)
-        tgt_text = tokenizer.batch_decode(output, skip_special_tokens=True)
-
         #print(output)
         #print(batch2)
         #print(batch)
         #predictedTokens4x4.append(model.generate(**batch))
-        metric4x4.add(prediction=tgt_text, reference=dataset['valid']['decoder_input_ids'][count])    
+        metric4x4.add(prediction=output, reference=batch2['input_ids'])    
         count = count + 1
     #metric4x4 = load_metric('bleu')
     #metric4x4.add_batch(predictions=predicted_tokens1, references=dataset['valid']['decoder_input_ids'])    
