@@ -476,7 +476,7 @@ def prepare_fine_tuning_faiss2x2(model_name, tokenizer, train_dataset, val_datas
       evaluation_strategy='epoch',     # evaluation strategy to adopt during training
       eval_steps=100,                  # number of update steps before evaluation
       warmup_steps=500,                # number of warmup steps for learning rate scheduler
-      weight_decay=0.01,               # strength of weight decay
+      weight_decay=0.1,               # strength of weight decay
       logging_dir='./logs2',            # directory for storing logs
       logging_steps=10,
       learning_rate = 0.0005
@@ -545,7 +545,7 @@ def prepare_fine_tuning_faiss3x3(model_name, tokenizer, train_dataset, val_datas
       evaluation_strategy='epoch',     # evaluation strategy to adopt during training
       eval_steps=100,                  # number of update steps before evaluation
       warmup_steps=500,                # number of warmup steps for learning rate scheduler
-      weight_decay=0.01,               # strength of weight decay
+      weight_decay=0.1,               # strength of weight decay
       logging_dir='./logs1',            # directory for storing logs
       logging_steps=10,
       learning_rate = 0.0005
