@@ -520,7 +520,14 @@ def prepare_fine_tuning_faiss3x3(model_name, tokenizer, train_dataset, val_datas
   """
   torch_device = 'cuda' if torch.cuda.is_available() else 'cpu'
   model = PegasusForConditionalGeneration.from_pretrained(model_name).to(torch_device)
+  metric = load_metric("accuracy")
+  def compute_metrics(eval_pred):
+        
+    logits, labels = eval_pred
 
+    predictions = np.argmax(logits, axis=-1)
+
+    return metric.compute(predictions=predictions, references=labels)
   if freeze_encoder:
     for param in model.model.encoder.parameters():
       param.requires_grad = False
@@ -539,6 +546,7 @@ def prepare_fine_tuning_faiss3x3(model_name, tokenizer, train_dataset, val_datas
       weight_decay=0.01,               # strength of weight decay
       logging_dir='./logs1',            # directory for storing logs
       logging_steps=10,
+      compute_metrics=compute_metrics,
       learning_rate = 0.0005
     )
 
