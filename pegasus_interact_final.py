@@ -333,7 +333,7 @@ def run():
     for i in tqdm(dataset['valid']['input_ids']):
         batch = tokenizer(i, truncation=True, padding="longest", return_tensors="pt").to('cpu')
         batch2 = tokenizer(dataset['valid']['decoder_input_ids'][0],truncation=True, padding="longest", return_tensors="pt").to('cpu')
-        output = model.generate(**batch['input_ids'])
+        output = model.generate(**batch)
         print(output)
         print(batch2)
         print(batch)
