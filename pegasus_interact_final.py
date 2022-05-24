@@ -33,6 +33,7 @@ from argparse import ArgumentParser
 import pickle
 from transformers import cached_path
 import random
+from datasets import load_metric
 
 PERSONACHAT_URL = "https://s3.amazonaws.com/datasets.huggingface.co/personachat/personachat_self_original.json"
 
@@ -112,12 +113,13 @@ def get_data_loaders():
             for utterance in dialog["utterances"]:
                 count_history = count_history + 1
                 history = utterance["history"][-(2*2+5):]
+                
                 #history_complete.append(history)
                 if len(persona) == 4:
                     if len(history) > (len(persona)+3):
                         history_chatbot = history[1::2]
                         persona_selected = persona_selected_list[count_persona]
-                        instance = build_input_from_segments_faiss_2(persona_selected, history_chatbot, persona)     
+                        instance = build_input_from_segments_faiss_2(persona_selected, history_chatbot)     
                         for input_name, input_array in instance.items():
                             datasets[dataset_name][input_name].append(input_array)
                         count_persona = count_persona + 1
@@ -152,12 +154,46 @@ def get_data_loaders_1sentence():
                 if len(history) > 3:
                     history_chatbot = history[1]
                     persona_selected = persona_selected_list[count_persona]
-                    instance = build_input_from_segments_faiss(persona_selected, history_chatbot,persona)     
+                    instance = build_input_from_segments_faiss(persona_selected, history_chatbot)     
                     for input_name, input_array in instance.items():
                         datasets[dataset_name][input_name].append(input_array)
                     count_persona = count_persona + 1
     return datasets
+def get_data_loaders_2sentences():
+    """ Prepare the dataset for training and evaluation """
+    dataset_path = ""
+    dataset_cache = None
+    personachat = get_dataset(dataset_path, dataset_cache)
 
+    tokenizer_selected = OpenAIGPTTokenizer.from_pretrained('openai-gpt')
+    logger.info("Build inputs and labels")
+    datasets = {"train": defaultdict(list), "valid": defaultdict(list)}
+    personality = []
+    history_complete = []
+    count_persona = 0
+    with open('data_faiss_pegasus_2generated.pkl', 'rb') as f:
+        persona_selected_list = pickle.load(f)
+    for dataset_name, dataset in personachat.items():
+        num_candidates = len(dataset[0]["utterances"][0]["candidates"])
+        if num_candidates > 0 and dataset_name == 'train':
+            num_candidates = min(1, num_candidates)
+        for dialog in dataset:
+            persona = dialog["persona_info"].copy()
+            #datasets[personality].append(persona)
+            count_history = 0
+            for utterance in dialog["utterances"]:
+                count_history = count_history + 1
+                history = utterance["history"][-(2*2+1):]
+                #history_complete.append(history)
+                if len(history) > 4:
+                  history_chatbot = history[1::2]
+
+                  persona_selected = persona_selected_list[count_persona]
+                  instance = build_input_from_segments_faiss_2(persona_selected, history_chatbot)     
+                  for input_name, input_array in instance.items():
+                      datasets[dataset_name][input_name].append(input_array)
+                  count_persona = count_persona + 1
+    return datasets
 def get_data_loaders_3sentences():
     """ Prepare the dataset for training and evaluation """
     dataset_path = ""
@@ -187,7 +223,7 @@ def get_data_loaders_3sentences():
                 if len(history) > 6:
                         history_chatbot = history[1::2]
                         persona_selected = persona_selected_list[count_persona]
-                        instance = build_input_from_segments_faiss_2(persona_selected, history_chatbot,persona)     
+                        instance = build_input_from_segments_faiss_2(persona_selected, history_chatbot)     
                         for input_name, input_array in instance.items():
                             datasets[dataset_name][input_name].append(input_array)
                         count_persona = count_persona + 1
@@ -237,12 +273,10 @@ def build_input_from_segments(persona, history, with_eos=True):
     instance["input_ids"] = history[1] + ' ' + history[3]
     #instance["input_ids"] = " ".join(history[-1])    
     instance["decoder_input_ids"] = " ".join(persona)
-    instance['total_persona'] = persona
-
     return instance
 
 
-def build_input_from_segments_faiss(persona_faiss, history, persona, with_eos=True):
+def build_input_from_segments_faiss(persona_faiss, history, with_eos=True):
     """ Build a sequence of input from 3 segments: persona, history and last reply. """
     #bos, eos, speaker1, speaker2 = tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS[:-1])
     #sequence = [[bos] + list(chain(*persona))] + history + [reply + ([eos] if with_eos else [])]
@@ -252,11 +286,9 @@ def build_input_from_segments_faiss(persona_faiss, history, persona, with_eos=Tr
     #instance["input_ids"] = " ".join(history[-1])
     instance["input_ids"] = history  
     instance["decoder_input_ids"] = persona_faiss
-    instance['total_persona'] = persona
-
     return instance
 
-def build_input_from_segments_faiss_2(persona_faiss, history_chatbot, persona, with_eos=True):
+def build_input_from_segments_faiss_2(persona_faiss, history_chatbot, with_eos=True):
     """ Build a sequence of input from 3 segments: persona, history and last reply. """
     #bos, eos, speaker1, speaker2 = tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS[:-1])
     #sequence = [[bos] + list(chain(*persona))] + history + [reply + ([eos] if with_eos else [])]
@@ -266,11 +298,9 @@ def build_input_from_segments_faiss_2(persona_faiss, history_chatbot, persona, w
     #instance["input_ids"] = " ".join(history[-1])
     instance["input_ids"] = ".".join(history_chatbot)   
     instance["decoder_input_ids"] = " ".join(persona_faiss)
-    instance['total_persona'] = persona
-
     return instance
 
-def build_input_from_segments_faiss_4(persona_faiss, history_chatbot, persona, with_eos=True):
+def build_input_from_segments_faiss_4(persona_faiss, history_chatbot, with_eos=True):
     """ Build a sequence of input from 3 segments: persona, history and last reply. """
     #bos, eos, speaker1, speaker2 = tokenizer.convert_tokens_to_ids(SPECIAL_TOKENS[:-1])
     #sequence = [[bos] + list(chain(*persona))] + history + [reply + ([eos] if with_eos else [])]
@@ -280,7 +310,6 @@ def build_input_from_segments_faiss_4(persona_faiss, history_chatbot, persona, w
     #instance["input_ids"] = " ".join(history[-1])
     instance["input_ids"] = ".".join(history_chatbot)   
     instance["decoder_input_ids"] = " ".join(persona_faiss)
-    
     return instance
 
 def run():
@@ -293,35 +322,49 @@ def run():
     tokenizer = PegasusTokenizer.from_pretrained(args.model_checkpoint)
     model = PegasusForConditionalGeneration.from_pretrained(args.model_checkpoint) 
     model.to("cpu")
-    if args.n_sentences == 2:
-        dataset = get_data_loaders()
-    elif args.n_sentences == 1:
-        dataset= get_data_loaders_1sentence()
-    else:
-        dataset= get_data_loaders_3sentences()
-    count= 0
-    while True:
-        row = random.randint(0, len(dataset['valid']['input_ids']))
-        print(len(dataset['valid']['input_ids']))
-        print("History  input:")
-        print(dataset['valid']['input_ids'][row])
-        print("\n Persona Faiss Input:")
-        print(dataset['valid']['decoder_input_ids'][row])
-        print("\n Persona total input:")
-        print(dataset['valid']['total_persona'][row])
-        count = count +1
-        raw_text = input(">>> ")
-        while not raw_text:
-            print('Prompt should not be empty!')
-            raw_text = input(">>> ")
-        #batch = tokenizer.prepare_seq2seq_batch(raw_text, truncation=True, padding='longest')
-        batch = tokenizer(raw_text, truncation=True, padding="longest", return_tensors="pt").to('cpu')
-        translated = model.generate(**batch)
-        tgt_text = tokenizer.batch_decode(translated, skip_special_tokens=True)
-        #tgt_text = tokenizer.batch_decode(translated, skip_special_tokens=True)
-        print("Result of decoding")
-        print(tgt_text)
+    dataset = get_data_loaders()        
+    predictedTokens4x4 = []  
+    for i in dataset['valid']['input_ids']:
+        batch = tokenizer(i, truncation=True, padding="longest", return_tensors="pt").to('cpu')
+        predictedTokens4x4.append(model.generate(**batch))
+    metric4x4 = load_metric('bleu')
+    metric4x4.compute(predicionts=predictedTokens4x4, references = dataset['valid']['decoder_input_ids'])     
+
+    dataset = get_data_loaders()        
+    predictedTokens1x1 = []  
+    for i in dataset['valid']['input_ids']:
+        batch = tokenizer(i, truncation=True, padding="longest", return_tensors="pt").to('cpu')
+        predictedTokens1x1.append(model.generate(**batch))
+    metric1x1 = load_metric('bleu')
+    metric1x1.compute(predicionts=predictedTokens1x1, references = dataset['valid']['decoder_input_ids'])
 
 
+    dataset = get_data_loaders_2sentences()     
+    predictedTokens2x2 = []  
+    for i in dataset['valid']['input_ids']:
+        batch = tokenizer(i, truncation=True, padding="longest", return_tensors="pt").to('cpu')
+        predictedTokens2x2.append(model.generate(**batch))
+    metric2x2 = load_metric('bleu')
+    metric2x2.compute(predicionts=predictedTokens2x2, references = dataset['valid']['decoder_input_ids'])
+
+    dataset = get_data_loaders_3sentences()       
+    predictedTokens3x3 = []  
+    for i in dataset['valid']['input_ids']:
+        batch = tokenizer(i, truncation=True, padding="longest", return_tensors="pt").to('cpu')
+        predictedTokens3x3.append(model.generate(**batch))
+    metric3x3 = load_metric('bleu')
+    metric3x3.compute(predicionts=predictedTokens3x3, references = dataset['valid']['decoder_input_ids'])
+
+    
+    
+    print(metric1x1)
+    print(metric2x2)
+''' def compute_metrics(eval_pred):
+    
+    logits, labels = eval_pred
+
+    predictions = np.argmax(logits, axis=-1)
+
+    return metric.compute(predictions=predictions, references=labels)) '''
 if __name__ == "__main__":
     run()
