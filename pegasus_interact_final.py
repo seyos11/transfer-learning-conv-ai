@@ -324,17 +324,19 @@ def run():
     model.to("cpu")
     dataset = get_data_loaders()        
     predictedTokens4x4 = []  
-    predicted_tokens1 = [0.88,0.999,0.76,0.55]
-    references = [0.3,0.5,0.6,0.5]
+    predicted_tokens1 = [[1,2,3,4]]
+    references = [[1,2,3,4]]
     metric4x4 = load_metric('bleu')
     #metric4x4.add_batch(predictions=predicted_tokens1, references=references)    
     #metric4x4.compute(predicionts=predicted_tokens1, references = references) 
+    count = 0
     for i in tqdm(dataset['valid']['input_ids']):
         batch = tokenizer(i, truncation=True, padding="longest", return_tensors="pt").to('cpu')
+        batch2 = tokenizer(dataset['valid']['decoder_input_ids'][0],truncation=True, padding="longest", return_tensors="pt").to('cpu')
         output = model.generate(**batch)
         #predictedTokens4x4.append(model.generate(**batch))
-        metric4x4.add_batch(predictions=output, references=dataset['valid']['decoder_input_ids'])    
-
+        metric4x4.add_batch(predictions=output, references=batch2)    
+        count = count + 1
     #metric4x4 = load_metric('bleu')
     #metric4x4.add_batch(predictions=predicted_tokens1, references=dataset['valid']['decoder_input_ids'])    
 
