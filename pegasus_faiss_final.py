@@ -321,11 +321,8 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
   model = PegasusForConditionalGeneration.from_pretrained(model_name).to(torch_device)
   metric = load_metric("accuracy")
   def compute_metrics(eval_pred):
-        
     logits, labels = eval_pred
-
     predictions = np.argmax(logits, axis=-1)
-
     return metric.compute(predictions=predictions, references=labels)
   if freeze_encoder:
     for param in model.model.encoder.parameters():
@@ -345,7 +342,6 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
       weight_decay=0.1,               # strength of weight decay
       logging_dir='./logs1',            # directory for storing logs
       logging_steps=10,
-      compute_metrics=compute_metrics,
       learning_rate = 0.0005
 
     )
@@ -355,6 +351,7 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
       args=training_args,                  # training arguments, defined above
       train_dataset=train_dataset,         # training dataset
       eval_dataset=val_dataset,            # evaluation dataset
+      compute_metrics=compute_metrics,
       tokenizer=tokenizer
     )
 
@@ -389,7 +386,11 @@ def prepare_fine_tuning_faiss1x1(model_name, tokenizer, train_dataset, val_datas
   """
   torch_device = 'cuda' if torch.cuda.is_available() else 'cpu'
   model = PegasusForConditionalGeneration.from_pretrained(model_name).to(torch_device)
-
+  metric = load_metric("accuracy")
+  def compute_metrics(eval_pred):
+    logits, labels = eval_pred
+    predictions = np.argmax(logits, axis=-1)
+    return metric.compute(predictions=predictions, references=labels)
   if freeze_encoder:
     for param in model.model.encoder.parameters():
       param.requires_grad = False
@@ -416,6 +417,7 @@ def prepare_fine_tuning_faiss1x1(model_name, tokenizer, train_dataset, val_datas
       args=training_args,                  # training arguments, defined above
       train_dataset=train_dataset,         # training dataset
       eval_dataset=val_dataset,            # evaluation dataset
+      compute_metrics=compute_metrics,
       tokenizer=tokenizer
     )
 
@@ -477,7 +479,6 @@ def prepare_fine_tuning_faiss2x2(model_name, tokenizer, train_dataset, val_datas
       weight_decay=0.01,               # strength of weight decay
       logging_dir='./logs2',            # directory for storing logs
       logging_steps=10,
-      compute_metrics=compute_metrics,
       learning_rate = 0.0005
     )
 
@@ -486,6 +487,7 @@ def prepare_fine_tuning_faiss2x2(model_name, tokenizer, train_dataset, val_datas
       args=training_args,                  # training arguments, defined above
       train_dataset=train_dataset,         # training dataset
       eval_dataset=val_dataset,            # evaluation dataset
+      compute_metrics=compute_metrics,
       tokenizer=tokenizer
     )
 
@@ -546,7 +548,6 @@ def prepare_fine_tuning_faiss3x3(model_name, tokenizer, train_dataset, val_datas
       weight_decay=0.01,               # strength of weight decay
       logging_dir='./logs1',            # directory for storing logs
       logging_steps=10,
-      compute_metrics=compute_metrics,
       learning_rate = 0.0005
     )
 
@@ -555,6 +556,7 @@ def prepare_fine_tuning_faiss3x3(model_name, tokenizer, train_dataset, val_datas
       args=training_args,                  # training arguments, defined above
       train_dataset=train_dataset,         # training dataset
       eval_dataset=val_dataset,            # evaluation dataset
+      compute_metrics=compute_metrics,
       tokenizer=tokenizer
     )
 
