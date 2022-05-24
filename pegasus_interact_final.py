@@ -335,7 +335,7 @@ def run():
         batch2 = tokenizer(dataset['valid']['decoder_input_ids'][0],truncation=True, padding="longest", return_tensors="pt").to('cpu')
         output = model.generate(**batch)
         #predictedTokens4x4.append(model.generate(**batch))
-        metric4x4.add(prediction=output, reference=batch2)    
+        metric4x4.add(prediction=output, reference=dataset['valid']['decoder_input_ids'][0])    
         count = count + 1
     #metric4x4 = load_metric('bleu')
     #metric4x4.add_batch(predictions=predicted_tokens1, references=dataset['valid']['decoder_input_ids'])    
