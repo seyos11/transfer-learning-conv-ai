@@ -332,8 +332,8 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
     training_args = TrainingArguments(
       output_dir=output_dir,           # output directory
       num_train_epochs=1,           # total number of training epochs
-      per_device_train_batch_size=4,   # batch size per device during training, can increase if memory allows
-      per_device_eval_batch_size=4,    # batch size for evaluation, can increase if memory allows
+      per_device_train_batch_size=8,   # batch size per device during training, can increase if memory allows
+      per_device_eval_batch_size=8,    # batch size for evaluation, can increase if memory allows
       save_steps=500,                  # number of updates steps before checkpoint saves
       save_total_limit=1,              # limit the total amount of checkpoints and deletes the older checkpoints
       evaluation_strategy='epoch',     # evaluation strategy to adopt during training
@@ -351,7 +351,6 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
       args=training_args,                  # training arguments, defined above
       train_dataset=train_dataset,         # training dataset
       eval_dataset=val_dataset,            # evaluation dataset
-      compute_metrics=compute_metrics,
       tokenizer=tokenizer
     )
 
@@ -417,7 +416,6 @@ def prepare_fine_tuning_faiss1x1(model_name, tokenizer, train_dataset, val_datas
       args=training_args,                  # training arguments, defined above
       train_dataset=train_dataset,         # training dataset
       eval_dataset=val_dataset,            # evaluation dataset
-      compute_metrics=compute_metrics,
       tokenizer=tokenizer
     )
 
@@ -487,7 +485,6 @@ def prepare_fine_tuning_faiss2x2(model_name, tokenizer, train_dataset, val_datas
       args=training_args,                  # training arguments, defined above
       train_dataset=train_dataset,         # training dataset
       eval_dataset=val_dataset,            # evaluation dataset
-      compute_metrics=compute_metrics,
       tokenizer=tokenizer
     )
 
@@ -556,7 +553,6 @@ def prepare_fine_tuning_faiss3x3(model_name, tokenizer, train_dataset, val_datas
       args=training_args,                  # training arguments, defined above
       train_dataset=train_dataset,         # training dataset
       eval_dataset=val_dataset,            # evaluation dataset
-      compute_metrics=compute_metrics,
       tokenizer=tokenizer
     )
 
