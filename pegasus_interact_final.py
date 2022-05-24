@@ -318,11 +318,11 @@ def run():
     parser.add_argument("--data_faiss", type=str, default="data_faiss_pegasus_1generated.pkl", help="pickle data to recover faiss data")
     parser.add_argument("--n_sentences", type=int, default= 1, help="sentences used to get faiss personality")
 
-    #args = parser.parse_args()
-    #tokenizer = PegasusTokenizer.from_pretrained(args.model_checkpoint)
-    #model = PegasusForConditionalGeneration.from_pretrained(args.model_checkpoint) 
-    #model.to("cpu")
-    #dataset = get_data_loaders()        
+    args = parser.parse_args()
+    tokenizer = PegasusTokenizer.from_pretrained(args.model_checkpoint)
+    model = PegasusForConditionalGeneration.from_pretrained(args.model_checkpoint) 
+    model.to("cpu")
+    dataset = get_data_loaders()        
     predictedTokens4x4 = []  
     predicted_tokens1 = [0.88,0.999,0.76,0.55]
     references = [0.3,0.5,0.6,0.5]
