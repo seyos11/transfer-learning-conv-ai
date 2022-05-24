@@ -318,17 +318,27 @@ def run():
     parser.add_argument("--data_faiss", type=str, default="data_faiss_pegasus_1generated.pkl", help="pickle data to recover faiss data")
     parser.add_argument("--n_sentences", type=int, default= 1, help="sentences used to get faiss personality")
 
-    args = parser.parse_args()
-    tokenizer = PegasusTokenizer.from_pretrained(args.model_checkpoint)
-    model = PegasusForConditionalGeneration.from_pretrained(args.model_checkpoint) 
-    model.to("cpu")
-    dataset = get_data_loaders()        
+    #args = parser.parse_args()
+    #tokenizer = PegasusTokenizer.from_pretrained(args.model_checkpoint)
+    #model = PegasusForConditionalGeneration.from_pretrained(args.model_checkpoint) 
+    #model.to("cpu")
+    #dataset = get_data_loaders()        
     predictedTokens4x4 = []  
+    predicted_tokens1 = [0.88,0.999,0.76,0.55]
+    references = [0.3,0.5,0.6,0.5]
+    metric4x4 = load_metric('bleu')
+    #metric4x4.add_batch(predictions=predicted_tokens1, references=references)    
+    #metric4x4.compute(predicionts=predicted_tokens1, references = references) 
     for i in tqdm(dataset['valid']['input_ids']):
         batch = tokenizer(i, truncation=True, padding="longest", return_tensors="pt").to('cpu')
-        predictedTokens4x4.append(model.generate(**batch))
-    metric4x4 = load_metric('bleu')
-    metric4x4.compute(predicionts=predictedTokens4x4, references = dataset['valid']['decoder_input_ids'])     
+        output = model.generate(**batch)
+        #predictedTokens4x4.append(model.generate(**batch))
+        metric4x4.add_batch(predictions=output, references=dataset['valid']['decoder_input_ids'])    
+
+    #metric4x4 = load_metric('bleu')
+    #metric4x4.add_batch(predictions=predicted_tokens1, references=dataset['valid']['decoder_input_ids'])    
+
+    metric4x4.compute()  
     print(metric4x4)
 
 '''     dataset = get_data_loaders()        
