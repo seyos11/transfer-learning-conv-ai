@@ -344,7 +344,8 @@ def run():
         count = count + 1
     #metric4x4 = load_metric('bleu')
     #metric4x4.add_batch(predictions=predicted_tokens1, references=dataset['valid']['decoder_input_ids'])    
-
+    print(predictedTokens4x4)
+    print(references)
     result = metric4x4.compute(predictions=predictedTokens4x4,references=references)  
     print(result)
 
