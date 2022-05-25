@@ -343,8 +343,8 @@ def run():
     #metric4x4 = load_metric('bleu')
     #metric4x4.add_batch(predictions=predicted_tokens1, references=dataset['valid']['decoder_input_ids'])    
 
-    metric4x4.compute()  
-    print(metric4x4)
+    result = metric4x4.compute()  
+    print(result)
 
 '''     dataset = get_data_loaders()        
     predictedTokens1x1 = []  
