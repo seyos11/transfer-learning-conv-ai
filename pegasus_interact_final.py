@@ -326,7 +326,7 @@ def run():
     predictedTokens4x4 = []  
     predicted_tokens1 = [[1,2,3,4]]
     references = [[1,2,3,4]]
-    metric4x4 = load_metric('bleu')
+    metric4x4 = load_metric('rouge')
     #metric4x4.add_batch(predictions=predicted_tokens1, references=references)    
     #metric4x4.compute(predicionts=predicted_tokens1, references = references) 
     count = 0
