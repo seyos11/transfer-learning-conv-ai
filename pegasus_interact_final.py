@@ -351,7 +351,7 @@ def run():
     for i in predicciones:
         decoded_preds.append(tokenizer.batch_decode(i, skip_special_tokens=True))
     for i in dataset['valid']['decoder_input_ids'][:30]:
-        decoded_labels.append([i])
+        decoded_labels.append([[i]])
     #print(predicciones)
     #decoded_preds = tokenizer.batch_decode(predicciones, skip_special_tokens=True)
     #decoded_labels = [dataset['valid']['decoder_input_ids'][:30]]
