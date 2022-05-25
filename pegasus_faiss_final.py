@@ -77,8 +77,6 @@ def get_data_loaders():
     personality = []
     history_complete = []
     count_persona = 0
-    with open('data_faiss_pegasus_2sentences_finalgenerated.pkl', 'rb') as f:
-        persona_selected_list = pickle.load(f)
     for dataset_name, dataset in personachat.items():
         num_candidates = len(dataset[0]["utterances"][0]["candidates"])
         if num_candidates > 0 and dataset_name == 'train':
@@ -95,8 +93,8 @@ def get_data_loaders():
                 if len(persona) == 4:
                     if len(history) > (len(persona)+3):
                         history_chatbot = history[1::2]
-                        persona_selected = persona_selected_list[count_persona]
-                        instance = build_input_from_segments_faiss_2(persona_selected, history_chatbot)     
+                        #persona_selected = persona_selected_list[count_persona]
+                        instance = build_input_from_segments_faiss_2(persona, history_chatbot)     
                         for input_name, input_array in instance.items():
                             datasets[dataset_name][input_name].append(input_array)
                         count_persona = count_persona + 1
@@ -592,17 +590,17 @@ if __name__=='__main__':
   # use Pegasus Large model as base for fine-tuning
   model_name = 'google/pegasus-large'
 
-  #train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
-  #trainer = prepare_fine_tuning(model_name, tokenizer, train_dataset,val_dataset=valid_dataset)
-  #trainer.train()
+  train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
+  trainer = prepare_fine_tuning(model_name, tokenizer, train_dataset,val_dataset=valid_dataset)
+  trainer.train()
   files = os.listdir('result_final_normal_4x4/')
   model_name_1 = './result_final_normal_4x4/' + files[0]
   dataset = get_data_loaders_1sentence()
   train_texts, train_labels = dataset['train']['input_ids'], dataset['train']['decoder_input_ids']
   valid_texts, valid_labels = dataset['valid']['input_ids'], dataset['valid']['input_ids']
-  #train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name_1, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
-  #trainer2 = prepare_fine_tuning_faiss1x1(model_name_1, tokenizer, train_dataset,val_dataset=valid_dataset)
-  #trainer2.train()
+  train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name_1, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
+  trainer2 = prepare_fine_tuning_faiss1x1(model_name_1, tokenizer, train_dataset,val_dataset=valid_dataset)
+  trainer2.train()
   
   files = os.listdir('result_final_faiss_1x1/')
   model_name_2 = './result_final_faiss_1x1/' + files[0]
@@ -610,9 +608,9 @@ if __name__=='__main__':
   #dataset = load_dataset("xsum")
   train_texts, train_labels = dataset['train']['input_ids'], dataset['train']['decoder_input_ids']
   valid_texts, valid_labels = dataset['valid']['input_ids'], dataset['valid']['input_ids']
-  #train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name_2, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
-  #trainer3 = prepare_fine_tuning_faiss2x2(model_name_2, tokenizer, train_dataset,val_dataset=valid_dataset)
-  #trainer3.train()
+  train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name_2, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
+  trainer3 = prepare_fine_tuning_faiss2x2(model_name_2, tokenizer, train_dataset,val_dataset=valid_dataset)
+  trainer3.train()
   
   files = os.listdir('result_final_faiss_2x2/')
   model_name_3 = './result_final_faiss_2x2/' + files[0]
