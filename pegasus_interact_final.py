@@ -334,13 +334,14 @@ def run():
     count = 0
     
     def postprocess_text(preds, labels):
-        preds = [pred.strip() for pred in preds]
+        preds = [pred.strip() for pred in x for x in preds]
         labels = [[label.strip()] for label in labels]
 
         return preds, labels
     for i in tqdm(dataset['valid']['input_ids'][:30]):
         batch = tokenizer(i, truncation=True, padding="longest", return_tensors="pt").to('cuda')
         output = model.generate(**batch)
+        print (output)
         predicciones.append(output)
     #for i in tqdm(dataset['valid']['input_ids'][:100]):
         #print (i)
