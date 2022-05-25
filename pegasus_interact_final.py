@@ -352,7 +352,7 @@ def run():
     #print(predicciones)
     #decoded_preds = tokenizer.batch_decode(predicciones, skip_special_tokens=True)
     decoded_labels = [dataset['valid']['decoder_input_ids'][count]]
-    decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
+    #decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
     #print(output)
     #print(batch2)
     #print(batch)
