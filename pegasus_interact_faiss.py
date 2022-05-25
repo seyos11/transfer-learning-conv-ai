@@ -85,6 +85,41 @@ def get_dataset(dataset_path, dataset_cache=None):
             torch.save(dataset, dataset_cache)
     return dataset
 
+def get_data_loaders4x4():
+    """ Prepare the dataset for training and evaluation """
+    dataset_path = ""
+    dataset_cache = None
+    personachat = get_dataset(dataset_path, dataset_cache)
+
+    tokenizer_selected = OpenAIGPTTokenizer.from_pretrained('openai-gpt')
+    logger.info("Build inputs and labels")
+    datasets = {"train": defaultdict(list), "valid": defaultdict(list)}
+    personality = []
+    history_complete = []
+    count_persona = 0
+    for dataset_name, dataset in personachat.items():
+        num_candidates = len(dataset[0]["utterances"][0]["candidates"])
+        if num_candidates > 0 and dataset_name == 'train':
+            num_candidates = min(1, num_candidates)
+        for dialog in dataset:
+            persona = dialog["persona_info"].copy()
+            #datasets[personality].append(persona)
+            count_history = 0
+            for utterance in dialog["utterances"]:
+                count_history = count_history + 1
+                history = utterance["history"][-(2*2+5):]
+                
+                #history_complete.append(history)
+                if len(persona) == 4:
+                    if len(history) > (len(persona)+3):
+                        history_chatbot = history[1::2]
+                        persona_selected = persona_selected_list[count_persona]
+                        instance = build_input_from_segments_faiss_2(persona, history_chatbot)     
+                        for input_name, input_array in instance.items():
+                            datasets[dataset_name][input_name].append(input_array)
+                        count_persona = count_persona + 1
+    return datasets
+
 def get_data_loaders():
     """ Prepare the dataset for training and evaluation """
     dataset_path = ""
@@ -242,8 +277,10 @@ def run():
     model.to("cpu")
     if args.n_sentences == 2:
         dataset = get_data_loaders()
-    else:
+    elif args.n_sentences == 1:
         dataset= get_data_loaders_1sentence()
+    else:
+        dataset = get_data_loaders4x4()
     count= 0
     while True:
         row = random.randint(0, len(dataset['valid']['input_ids']))
