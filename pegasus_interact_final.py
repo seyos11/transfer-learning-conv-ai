@@ -353,7 +353,7 @@ def run():
     #print(batch2)
     #print(batch)
     #predictedTokens4x4.append(model.generate(**batch))
-    #print(decoded_preds)
+    print(decoded_preds)
     #print("decoded labels")
     #print(decoded_labels)
     #predictedTokens4x4.append(decoded_preds)
