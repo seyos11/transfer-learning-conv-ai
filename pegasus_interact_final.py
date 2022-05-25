@@ -329,7 +329,7 @@ def run():
     references = []
     metric4x4 = load_metric('bleu')
     metric_rouge = load_metric('rouge')
-    metric_cosine_similarity = load_metric('sbert')
+    metric_cosine_similarity = load_metric('bertscore')
     print(metric4x4.inputs_description)
     print(metric_rouge.inputs_description)
     print(metric_cosine_similarity.inputs_description)
