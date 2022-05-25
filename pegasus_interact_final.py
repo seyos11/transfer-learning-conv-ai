@@ -331,6 +331,7 @@ def run():
     #metric4x4.compute(predicionts=predicted_tokens1, references = references) 
     count = 0
     for i in tqdm(dataset['valid']['input_ids'][100]):
+        print (i)
         batch = tokenizer(i, truncation=True, padding="longest", return_tensors="pt").to('cuda')
         batch2 = tokenizer(dataset['valid']['decoder_input_ids'][count],truncation=True, padding="longest", return_tensors="pt").to('cuda')
         output = model.generate(**batch)
@@ -344,8 +345,8 @@ def run():
         count = count + 1
     #metric4x4 = load_metric('bleu')
     #metric4x4.add_batch(predictions=predicted_tokens1, references=dataset['valid']['decoder_input_ids'])    
-    print(predictedTokens4x4)
-    print(references)
+    #print(predictedTokens4x4)
+    #print(references)
     result = metric4x4.compute(predictions=predictedTokens4x4,references=references)  
     print(result)
 
