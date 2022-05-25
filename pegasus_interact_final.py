@@ -338,8 +338,8 @@ def run():
         #print(batch2)
         #print(batch)
         #predictedTokens4x4.append(model.generate(**batch))
-        predictedTokens4x4.append([output])
-        references.append([batch2['input_ids']])
+        predictedTokens4x4.append(output)
+        references.append(batch2['input_ids'])
         ##metric4x4.add(prediction=output, reference=batch2['input_ids'])    
         count = count + 1
     #metric4x4 = load_metric('bleu')
