@@ -346,6 +346,7 @@ def run():
     #batch = tokenizer(i, truncation=True, padding="longest", return_tensors="pt").to('cuda')
     #batch2 = tokenizer(dataset['valid']['decoder_input_ids'][count],truncation=True, padding="longest", return_tensors="pt").to('cuda')
     #output = model.generate(**batch)
+    decoded_preds = []
     for i in predicciones:
         decoded_preds.append(tokenizer.batch_decode(i, skip_special_tokens=True))
     #print(predicciones)
