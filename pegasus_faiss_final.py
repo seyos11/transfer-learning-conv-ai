@@ -609,9 +609,9 @@ if __name__=='__main__':
   #dataset = load_dataset("xsum")
   train_texts, train_labels = dataset['train']['input_ids'], dataset['train']['decoder_input_ids']
   valid_texts, valid_labels = dataset['valid']['input_ids'], dataset['valid']['input_ids']
-  train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name_2, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
-  trainer3 = prepare_fine_tuning_faiss2x2(model_name_2, tokenizer, train_dataset,val_dataset=valid_dataset)
-  trainer3.train()
+  #train_dataset, valid_dataset, _, tokenizer = prepare_data(model_name_2, train_texts, train_labels,val_texts=valid_texts, val_labels=valid_labels)
+  #trainer3 = prepare_fine_tuning_faiss2x2(model_name_2, tokenizer, train_dataset,val_dataset=valid_dataset)
+  #trainer3.train()
   
   files = os.listdir('result_final_faiss_2x2/')
   model_name_3 = './result_final_faiss_2x2/' + files[0]
