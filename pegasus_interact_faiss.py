@@ -237,9 +237,9 @@ def run():
     parser.add_argument("--n_sentences", type=int, default= 1, help="sentences used to get faiss personality")
 
     args = parser.parse_args()
-    #tokenizer = PegasusTokenizer.from_pretrained(args.model_checkpoint)
-    #model = PegasusForConditionalGeneration.from_pretrained(args.model_checkpoint) 
-    #model.to("cpu")
+    tokenizer = PegasusTokenizer.from_pretrained(args.model_checkpoint)
+    model = PegasusForConditionalGeneration.from_pretrained(args.model_checkpoint) 
+    model.to("cpu")
     if args.n_sentences == 2:
         dataset = get_data_loaders()
     else:
