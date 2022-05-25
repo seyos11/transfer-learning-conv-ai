@@ -351,7 +351,7 @@ def run():
         decoded_preds.append(tokenizer.batch_decode(i, skip_special_tokens=True))
     #print(predicciones)
     #decoded_preds = tokenizer.batch_decode(predicciones, skip_special_tokens=True)
-    decoded_labels = dataset['valid']['decoder_input_ids']
+    decoded_labels = [dataset['valid']['decoder_input_ids']]
     #decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
     #print(output)
     #print(batch2)
@@ -365,8 +365,6 @@ def run():
         ##metric4x4.add(prediction=output, reference=batch2['input_ids'])    
     #metric4x4 = load_metric('bleu')
     #metric4x4.add_batch(predictions=predicted_tokens1, references=dataset['valid']['decoder_input_ids'])    
-    print(predictedTokens4x4)
-    print(references)
     result = metric4x4.compute(predictions=decoded_preds,references=decoded_labels)  
     print(result)
 
