@@ -335,7 +335,7 @@ def run():
     
     def postprocess_text(preds, labels):
         preds = [pred.split() for x in preds for pred in x]
-        labels = [[label.split()] for label in labels]
+        #labels = [[label.split()] for label in labels]
 
         return preds, labels
     def postprocess_text2(preds, labels):
