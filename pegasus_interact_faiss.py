@@ -113,7 +113,7 @@ def get_data_loaders4x4():
                 if len(persona) == 4:
                     if len(history) > (len(persona)+3):
                         history_chatbot = history[1::2]
-                        instance = build_input_from_segments_faiss_2(persona, history_chatbot)     
+                        instance = build_input_from_segments_faiss_2(persona, history_chatbot,persona)     
                         for input_name, input_array in instance.items():
                             datasets[dataset_name][input_name].append(input_array)
                         count_persona = count_persona + 1
