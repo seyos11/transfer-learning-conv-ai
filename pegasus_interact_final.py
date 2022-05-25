@@ -330,17 +330,27 @@ def run():
     #metric4x4.add_batch(predictions=predicted_tokens1, references=references)    
     #metric4x4.compute(predicionts=predicted_tokens1, references = references) 
     count = 0
+    
+    def postprocess_text(preds, labels):
+        preds = [pred.strip() for pred in preds]
+        labels = [[label.strip()] for label in labels]
+
+        return preds, labels
     for i in tqdm(dataset['valid']['input_ids'][:100]):
         #print (i)
         batch = tokenizer(i, truncation=True, padding="longest", return_tensors="pt").to('cuda')
-        batch2 = tokenizer(dataset['valid']['decoder_input_ids'][count],truncation=True, padding="longest", return_tensors="pt").to('cuda')
+        #batch2 = tokenizer(dataset['valid']['decoder_input_ids'][count],truncation=True, padding="longest", return_tensors="pt").to('cuda')
         output = model.generate(**batch)
+        decoded_preds = tokenizer.batch_decode(translated, skip_special_tokens=True)
+        decoded_labels = dataset['valid']['decoder_input_ids'][count]
+        decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
         #print(output)
         #print(batch2)
         #print(batch)
         #predictedTokens4x4.append(model.generate(**batch))
-        predictedTokens4x4.append(output)
-        references.append(batch2['input_ids'])
+        print(decoded_preds)
+        predictedTokens4x4.append(decoded_preds)
+        references.append(decoded_labels)
         ##metric4x4.add(prediction=output, reference=batch2['input_ids'])    
         count = count + 1
     #metric4x4 = load_metric('bleu')
