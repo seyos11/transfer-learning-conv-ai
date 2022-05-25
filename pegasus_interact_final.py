@@ -333,7 +333,7 @@ def run():
     
     def postprocess_text(preds, labels):
         preds = [pred.strip() for pred in preds]
-        labels = [[label.strip()] for label in labels]
+        labels = [label.strip() for label in labels]
 
         return preds, labels
     for i in tqdm(dataset['valid']['input_ids'][:100]):
@@ -342,7 +342,7 @@ def run():
         #batch2 = tokenizer(dataset['valid']['decoder_input_ids'][count],truncation=True, padding="longest", return_tensors="pt").to('cuda')
         output = model.generate(**batch)
         decoded_preds = tokenizer.batch_decode(output, skip_special_tokens=True)
-        decoded_labels = dataset['valid']['decoder_input_ids'][count]
+        decoded_labels = [dataset['valid']['decoder_input_ids'][count]]
         decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
         #print(output)
         #print(batch2)
