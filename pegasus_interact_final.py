@@ -328,7 +328,12 @@ def run():
     predicted_tokens1 = [[1,2,3,4]]
     references = []
     metric4x4 = load_metric('bleu')
+    metric_rouge = load_metric('rouge')
+    metric_cosine_similarity = load.metri('sbert')
     print(metric4x4.inputs_description)
+    print(metric_rouge.inputs_description)
+    print(metric_cosine_similarity.inputs_description)
+
     #metric4x4.add_batch(predictions=predicted_tokens1, references=references)    
     #metric4x4.compute(predicionts=predicted_tokens1, references = references) 
     count = 0
@@ -357,7 +362,7 @@ def run():
     for i in predicciones:
         decoded_preds.append(tokenizer.batch_decode(i, skip_special_tokens=True))
     for i in dataset['valid']['decoder_input_ids'][:30]:
-        decoded_labels.append([i])
+        decoded_labels.append([i.split()])
     decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
     #print(predicciones)
     #decoded_preds = tokenizer.batch_decode(predicciones, skip_special_tokens=True)
