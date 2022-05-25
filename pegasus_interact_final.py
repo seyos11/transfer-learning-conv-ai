@@ -321,7 +321,7 @@ def run():
     args = parser.parse_args()
     tokenizer = PegasusTokenizer.from_pretrained(args.model_checkpoint)
     model = PegasusForConditionalGeneration.from_pretrained(args.model_checkpoint) 
-    model.to("cpu")
+    model.to("gpu")
     dataset = get_data_loaders()        
     predictedTokens4x4 = []  
     predicted_tokens1 = [[1,2,3,4]]
@@ -331,7 +331,7 @@ def run():
     #metric4x4.compute(predicionts=predicted_tokens1, references = references) 
     count = 0
     for i in tqdm(dataset['valid']['input_ids']):
-        batch = tokenizer(i, truncation=True, padding="longest", return_tensors="pt").to('cpu')
+        batch = tokenizer(i, truncation=True, padding="longest", return_tensors="pt").to('gpu')
         batch2 = tokenizer(dataset['valid']['decoder_input_ids'][count],truncation=True, padding="longest", return_tensors="pt").to('cpu')
         output = model.generate(**batch)
         #print(output)
