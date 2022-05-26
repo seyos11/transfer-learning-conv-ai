@@ -68,10 +68,12 @@ def get_data_loaders():
     dataset_cache = None
     personachat = get_dataset(dataset_path, dataset_cache)
 
+    tokenizer_selected = OpenAIGPTTokenizer.from_pretrained('openai-gpt')
     logger.info("Build inputs and labels")
     datasets = {"train": defaultdict(list), "valid": defaultdict(list)}
     personality = []
     history_complete = []
+    count_persona = 0
     for dataset_name, dataset in personachat.items():
         num_candidates = len(dataset[0]["utterances"][0]["candidates"])
         if num_candidates > 0 and dataset_name == 'train':
@@ -82,15 +84,17 @@ def get_data_loaders():
             count_history = 0
             for utterance in dialog["utterances"]:
                 count_history = count_history + 1
-                #history = utterance["history"][-(2*2+1):]
-                history = utterance["history"]
+                history = utterance["history"][-(2*2+5):]
+                
                 #history_complete.append(history)
-                #Selección de impares
-                history_chatbot = history[1::2]
-                if len(history_chatbot) > (len(persona)-1):
-                    instance = build_input_from_segments(persona, history_chatbot[-len(persona):])     
-                    for input_name, input_array in instance.items():
-                        datasets[dataset_name][input_name].append(input_array) 
+                if len(persona) == 4:
+                    if len(history) > (len(persona)+3):
+                        history_chatbot = history[1::2]
+                        #persona_selected = persona_selected_list[count_persona]
+                        instance = build_input_from_segments_faiss_2(persona, history_chatbot)     
+                        for input_name, input_array in instance.items():
+                            datasets[dataset_name][input_name].append(input_array)
+                        count_persona = count_persona + 1
     return datasets
 
 
@@ -177,7 +181,7 @@ def prepare_data(model_name,
   return train_dataset, val_dataset, test_dataset, tokenizer
 
 
-def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./result_5epochs_8batch_01learningrate_200522_final_validation'):
+def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./result_4epochs_8batch_01learningrate_260522_final_validation'):
   """
   Prepare configurations and base model for fine-tuning
   """
@@ -217,10 +221,10 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
   else:
     training_args = TrainingArguments(
       output_dir=output_dir,           # output directory
-      num_train_epochs=5,           # total number of training epochs
+      num_train_epochs=4,           # total number of training epochs
       per_device_train_batch_size=8,   # batch size per device during training, can increase if memory allows
       #save_steps=500,                  # number of updates steps before checkpoint saves
-      #save_total_limit=5,              # limit the total amount of checkpoints and deletes the older checkpoints
+      save_total_limit=1,              # limit the total amount of checkpoints and deletes the older checkpoints
       warmup_steps=500,                # number of warmup steps for learning rate scheduler
       weight_decay=0.1,               # strength of weight decay
       #weight_decay=0.01,
