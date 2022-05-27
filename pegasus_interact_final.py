@@ -317,6 +317,7 @@ def run():
     parser.add_argument("--model_checkpoint", type=str, default="results2_3epochs_2batch/checkpoint-143500", help="model checkpoint to use")
     parser.add_argument("--data_faiss", type=str, default="data_faiss_pegasus_1generated.pkl", help="pickle data to recover faiss data")
     parser.add_argument("--n_sentences", type=int, default= 1, help="sentences used to get faiss personality")
+    parser.add_argument("--metric", type=str, default= 'bleu', help="Metric to eval Pegasus Model")
 
     args = parser.parse_args()
     tokenizer = PegasusTokenizer.from_pretrained(args.model_checkpoint)
@@ -327,9 +328,10 @@ def run():
     predicciones = []
     predicted_tokens1 = [[1,2,3,4]]
     references = []
-    metric4x4 = load_metric('bleu')
+    metric_bleu = load_metric('bleu')
     metric_rouge = load_metric('rouge')
     metric_cosine_similarity = load_metric('bertscore')
+    metric4x4 = metric_rouge
     print(metric4x4.inputs_description)
     print(metric_rouge.inputs_description)
     print(metric_cosine_similarity.inputs_description)
@@ -362,7 +364,7 @@ def run():
     for i in predicciones:
         decoded_preds.append(tokenizer.batch_decode(i, skip_special_tokens=True))
     for i in dataset['valid']['decoder_input_ids'][:30]:
-        decoded_labels.append([i.split()])
+        decoded_labels.append(i)
     decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
     #print(predicciones)
     #decoded_preds = tokenizer.batch_decode(predicciones, skip_special_tokens=True)
@@ -416,5 +418,6 @@ def run():
     predictions = np.argmax(logits, axis=-1)
 
     return metric.compute(predictions=predictions, references=labels)) '''
+
 if __name__ == "__main__":
     run()
