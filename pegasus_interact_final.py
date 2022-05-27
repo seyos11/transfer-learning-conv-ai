@@ -366,9 +366,15 @@ def run():
         decoded_preds.append(tokenizer.batch_decode(i, skip_special_tokens=True))
     for i in dataset['valid']['decoder_input_ids'][:30]:
         decoded_labels.append(i.split())
+    print(decoded_labels)
+
+    result1 = metric_bleu.compute(predictions=decoded_preds,references=decoded_labels)  
+    
     decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
     decoded_labels = [" ".join(i) for i in decoded_labels]
     decoded_preds = [" ".join(i) for i in decoded_preds]
+    #result2 = metric_rouge.compute(predictions=decoded_preds,references=decoded_labels)  
+    #result3 = metric_cosine_similarity.compute(predictions=decoded_preds,references=decoded_labels)  
 
     #decoded_preds = list(itertools.chain(*decoded_preds))
     #print(predicciones)
@@ -387,8 +393,8 @@ def run():
         ##metric4x4.add(prediction=output, reference=batch2['input_ids'])    
     #metric4x4 = load_metric('bleu')
     #metric4x4.add_batch(predictions=predicted_tokens1, references=dataset['valid']['decoder_input_ids'])    
-    result = metric4x4.compute(predictions=decoded_preds,references=decoded_labels)  
-    print(result)
+    #result = metric4x4.compute(predictions=decoded_preds,references=decoded_labels)  
+    print(result1)
 
 '''     dataset = get_data_loaders()        
     predictedTokens1x1 = []  
