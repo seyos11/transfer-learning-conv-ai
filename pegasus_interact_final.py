@@ -35,6 +35,7 @@ from transformers import cached_path
 import random
 from datasets import load_metric
 from tqdm import tqdm
+import itertools
 PERSONACHAT_URL = "https://s3.amazonaws.com/datasets.huggingface.co/personachat/personachat_self_original.json"
 
 logger = logging.getLogger(__file__)
@@ -364,8 +365,9 @@ def run():
     for i in predicciones:
         decoded_preds.append(tokenizer.batch_decode(i, skip_special_tokens=True))
     for i in dataset['valid']['decoder_input_ids'][:30]:
-        decoded_labels.append([i])
-    #decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
+        decoded_labels.append([i.split()])
+    decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
+    #decoded_preds = list(itertools.chain(*decoded_preds))
     #print(predicciones)
     #decoded_preds = tokenizer.batch_decode(predicciones, skip_special_tokens=True)
     #decoded_labels = [dataset['valid']['decoder_input_ids'][:30]]
