@@ -440,7 +440,7 @@ def run():
     decoded_labels = []
     for i in predicciones:
         decoded_preds.append(tokenizer.batch_decode(i, skip_special_tokens=True))
-    for i in dataset['valid']['decoder_input_ids'][:30]:
+    for i in dataset['valid']['decoder_input_ids']:
         decoded_labels.append([i.split()])
     decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
     if args.metric  == 'bleu':
