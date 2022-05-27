@@ -368,6 +368,8 @@ def run():
         decoded_labels.append(i.split())
     decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
     decoded_labels = [" ".join(i) for i in decoded_labels]
+    decoded_preds = [" ".join(i) for i in decoded_preds]
+
     #decoded_preds = list(itertools.chain(*decoded_preds))
     #print(predicciones)
     #decoded_preds = tokenizer.batch_decode(predicciones, skip_special_tokens=True)
