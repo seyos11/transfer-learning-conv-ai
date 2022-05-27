@@ -443,14 +443,26 @@ def run():
     for i in dataset['valid']['decoder_input_ids']:
         decoded_labels.append([i.split()])
     decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
-    if args.metric  == 'bleu':
+    if args.metric == 'all':
         result = metric_bleu.compute(predictions=decoded_preds,references=decoded_labels)  
+        print(result)
+        decoded_labels = [" ".join(i) for j in decoded_labels for i in j]
+        decoded_preds = [" ".join(i) for i in decoded_preds]  
+        result = metric_rouge.compute(predictions=decoded_preds,references=decoded_labels)  
+        print(result)     
+        result = metric_cosine_similarity.compute(predictions=decoded_preds,references=decoded_labels)  
+        print(result)
+    if args.metric  == 'bleu':
+        result = metric_bleu.compute(predictions=decoded_preds,references=decoded_labels)
+        print(result)     
+  
     decoded_labels = [" ".join(i) for j in decoded_labels for i in j]
     decoded_preds = [" ".join(i) for i in decoded_preds]
     if args.metric == 'rouge':
         result = metric_rouge.compute(predictions=decoded_preds,references=decoded_labels)  
+        print(result)     
     elif args.metric == 'cosine_similarity':
         result = metric_cosine_similarity.compute(predictions=decoded_preds,references=decoded_labels)  
-    print(result)     
+        print(result)     
 if __name__ == "__main__":
     run()
