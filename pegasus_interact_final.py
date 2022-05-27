@@ -119,7 +119,7 @@ def get_data_loaders():
                     if len(history) > (len(persona)+3):
                         history_chatbot = history[1::2]
                         persona_selected = persona_selected_list[count_persona]
-                        instance = build_input_from_segments_faiss_2(persona_selected, history_chatbot)     
+                        instance = build_input_from_segments_faiss_2(persona, history_chatbot)     
                         for input_name, input_array in instance.items():
                             datasets[dataset_name][input_name].append(input_array)
                         count_persona = count_persona + 1
@@ -364,7 +364,7 @@ def run():
     for i in predicciones:
         decoded_preds.append(tokenizer.batch_decode(i, skip_special_tokens=True))
     for i in dataset['valid']['decoder_input_ids'][:30]:
-        decoded_labels.append([i])
+        decoded_labels.append(i)
     #decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
     #print(predicciones)
     #decoded_preds = tokenizer.batch_decode(predicciones, skip_special_tokens=True)
