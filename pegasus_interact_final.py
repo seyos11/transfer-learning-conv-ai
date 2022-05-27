@@ -332,7 +332,7 @@ def run():
     metric_rouge = load_metric('rouge')
     metric_cosine_similarity = load_metric('bertscore')
     metric4x4 = metric_rouge
-    print(metric4x4.inputs_description)
+    print(metric_bleu.inputs_description)
     print(metric_rouge.inputs_description)
     print(metric_cosine_similarity.inputs_description)
 
