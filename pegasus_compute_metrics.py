@@ -451,6 +451,6 @@ def run():
         result = metric_rouge.compute(predictions=decoded_preds,references=decoded_labels)  
     elif args.metric == 'cosine_similarity':
         result = metric_cosine_similarity.compute(predictions=decoded_preds,references=decoded_labels)  
-  print(result)     
+    print(result)     
 if __name__ == "__main__":
     run()
