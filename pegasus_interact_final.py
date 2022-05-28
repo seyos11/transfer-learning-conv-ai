@@ -374,7 +374,7 @@ def run():
     decoded_labels = [" ".join(i) for j in decoded_labels for i in j]
     decoded_preds = [" ".join(i) for i in decoded_preds]
     #result2 = metric_rouge.compute(predictions=decoded_preds,references=decoded_labels)  
-    result3 = metric_cosine_similarity.compute(predictions=decoded_preds,references=decoded_labels, lan='en')  
+    result3 = metric_cosine_similarity.compute(predictions=decoded_preds,references=decoded_labels, lang='en')  
 
     #decoded_preds = list(itertools.chain(*decoded_preds))
     #print(predicciones)
