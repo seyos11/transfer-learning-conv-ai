@@ -450,7 +450,7 @@ def run():
         decoded_preds = [" ".join(i) for i in decoded_preds]  
         result = metric_rouge.compute(predictions=decoded_preds,references=decoded_labels)  
         print(result)     
-        result = metric_cosine_similarity.compute(predictions=decoded_preds,references=decoded_labels)  
+        result = metric_cosine_similarity.compute(predictions=decoded_preds,references=decoded_labels,lang='en')  
         print(result)
     if args.metric  == 'bleu':
         result = metric_bleu.compute(predictions=decoded_preds,references=decoded_labels)
