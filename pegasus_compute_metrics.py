@@ -317,7 +317,7 @@ def run():
     parser.add_argument("--model_checkpoint", type=str, default="results2_3epochs_2batch/checkpoint-143500", help="model checkpoint to use")
     parser.add_argument("--data_faiss", type=str, default="data_faiss_pegasus_1generated.pkl", help="pickle data to recover faiss data")
     parser.add_argument("--n_sentences", type=int, default= 1, help="sentences used to get faiss personality")
-    parser.add_argument("--metric", type=str, default= 'bleu', help="Metric to eval Pegasus Model")
+    parser.add_argument("--metric", type=str, default= 'all', help="Metric to eval Pegasus Model")
 
     args = parser.parse_args()
     tokenizer = PegasusTokenizer.from_pretrained(args.model_checkpoint)
