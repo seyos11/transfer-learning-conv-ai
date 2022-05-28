@@ -374,7 +374,7 @@ def run():
     decoded_labels = [" ".join(i) for j in decoded_labels for i in j]
     decoded_preds = [" ".join(i) for i in decoded_preds]
     #result2 = metric_rouge.compute(predictions=decoded_preds,references=decoded_labels)  
-    #result3 = metric_cosine_similarity.compute(predictions=decoded_preds,references=decoded_labels)  
+    result3 = metric_cosine_similarity.compute(predictions=decoded_preds,references=decoded_labels, lan='en')  
 
     #decoded_preds = list(itertools.chain(*decoded_preds))
     #print(predicciones)
@@ -395,7 +395,7 @@ def run():
     #metric4x4.add_batch(predictions=predicted_tokens1, references=dataset['valid']['decoder_input_ids'])    
     #result = metric4x4.compute(predictions=decoded_preds,references=decoded_labels)  
     print(result1)
-
+    print(type(result3))
 '''     dataset = get_data_loaders()        
     predictedTokens1x1 = []  
     for i in dataset['valid']['input_ids']:
