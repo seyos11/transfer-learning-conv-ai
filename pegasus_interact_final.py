@@ -36,6 +36,8 @@ import random
 from datasets import load_metric
 from tqdm import tqdm
 import itertools
+import numpy as np
+
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 PERSONACHAT_URL = "https://s3.amazonaws.com/datasets.huggingface.co/personachat/personachat_self_original.json"
