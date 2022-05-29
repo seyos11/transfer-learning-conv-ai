@@ -35,6 +35,9 @@ from transformers import cached_path
 import random
 from datasets import load_metric
 from tqdm import tqdm
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
+
 PERSONACHAT_URL = "https://s3.amazonaws.com/datasets.huggingface.co/personachat/personachat_self_original.json"
 
 logger = logging.getLogger(__file__)
@@ -460,13 +463,23 @@ def run():
         json.dump(result, a_file)
 
         a_file.close()     
+        
         result = metric_cosine_similarity.compute(predictions=decoded_preds,references=decoded_labels,lang='en')  
         a_file = open("Cosine_Similarity_Metric4x4_separated_290522.json", "w")
 
         json.dump(result, a_file)
 
         a_file.close()    
-        
+        model = SentenceTransformer('all-mpnet-base-v2')
+        embeddings_pred = model.encode(decoded_preds, show_progress_bar=False)   
+            # Step 1: Change data type
+        embeddings_pred = np.array([embedding for embedding in embeddings_pred]).astype("float32")
+        embeddings_label = model.encode(decoded_labels, show_progress_bar=False)   
+            # Step 1: Change data type
+        embeddings_label = np.array([embedding for embedding in embeddings_label]).astype("float32")
+        #print(embeddings_pred)
+        result = cosine_similarity(embeddings_pred, embeddings_label)
+        print(result)
     if args.metric  == 'bleu':
         result = metric_bleu.compute(predictions=decoded_preds,references=decoded_labels)
         print(result)     
