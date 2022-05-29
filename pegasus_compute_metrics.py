@@ -320,7 +320,7 @@ def run():
     parser.add_argument("--model_checkpoint", type=str, default="results2_3epochs_2batch/checkpoint-143500", help="model checkpoint to use")
     parser.add_argument("--data_faiss", type=str, default="data_faiss_pegasus_1generated.pkl", help="pickle data to recover faiss data")
     parser.add_argument("--n_sentences", type=int, default= 4, help="sentences used to get faiss personality")
-    parser.add_argument("--metric", type=str, default= 'all', help="Metric to eval Pegasus Model")
+    parser.add_argument("--metric", type=str, default= 'bertscore', help="Metric to eval Pegasus Model")
 
     args = parser.parse_args()
     tokenizer = PegasusTokenizer.from_pretrained(args.model_checkpoint)
@@ -490,7 +490,17 @@ def run():
         result = metric_rouge.compute(predictions=decoded_preds,references=decoded_labels)  
         print(result)     
     elif args.metric == 'cosine_similarity':
-        result = metric_cosine_similarity.compute(predictions=decoded_preds,references=decoded_labels,lang="en")  
-        print(result)     
+        decoded_preds = ["".join(decoded_preds)]
+        decoded_labels =["".join(decoded_labels)]
+        model = SentenceTransformer('all-mpnet-base-v2')
+        embeddings_pred = model.encode(decoded_preds, show_progress_bar=False)   
+            # Step 1: Change data type
+        embeddings_pred = np.array([embedding for embedding in embeddings_pred]).astype("float32")
+        embeddings_label = model.encode(decoded_labels, show_progress_bar=False)   
+            # Step 1: Change data type
+        embeddings_label = np.array([embedding for embedding in embeddings_label]).astype("float32")
+        #print(embeddings_pred)
+        result = cosine_similarity(embeddings_pred, embeddings_label)
+        print(result)
 if __name__ == "__main__":
     run()
