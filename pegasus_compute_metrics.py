@@ -445,7 +445,7 @@ def run():
     decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
     if args.metric == 'all':
         result = metric_bleu.compute(predictions=decoded_preds,references=decoded_labels)
-        a_file = open("Bleu_Metric4x4.json", "w")
+        a_file = open("Bleu_Metric1x1_separated_290522.json", "w")
 
         json.dump(result, a_file)
 
@@ -455,13 +455,13 @@ def run():
         decoded_preds = [" ".join(i) for i in decoded_preds]  
         result = metric_rouge.compute(predictions=decoded_preds,references=decoded_labels)  
         print(result)    
-        a_file = open("Rouge_Metric4x4.json", "w")
+        a_file = open("Rouge_Metric1x1_separated_290522.json", "w")
 
         json.dump(result, a_file)
 
         a_file.close()     
         result = metric_cosine_similarity.compute(predictions=decoded_preds,references=decoded_labels,lang='en')  
-        a_file = open("Cosine_Similarity_Metric4x4.json", "w")
+        a_file = open("Cosine_Similarity_Metric1x1_separated_290522.json", "w")
 
         json.dump(result, a_file)
 
