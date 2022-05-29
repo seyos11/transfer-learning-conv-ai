@@ -36,6 +36,8 @@ import random
 from datasets import load_metric
 from tqdm import tqdm
 import itertools
+from sentence_transformers import SentenceTransformer
+from sklearn.metrics.pairwise import cosine_similarity
 PERSONACHAT_URL = "https://s3.amazonaws.com/datasets.huggingface.co/personachat/personachat_self_original.json"
 
 logger = logging.getLogger(__file__)
@@ -402,6 +404,16 @@ def run():
     print(decoded_labels)
     result3 = metric_cosine_similarity.compute(predictions=decoded_preds,references=decoded_labels, lang='en')  
     print(result3)
+    
+    model = SentenceTransformer('all-mpnet-base-v2')
+    embeddings_pred = model.encode(persona, show_progress_bar=False)   
+        # Step 1: Change data type
+    embeddings_pred = np.array([embedding for embedding in embeddings_pred]).astype("float32")
+    embeddings_label = model.encode(persona, show_progress_bar=False)   
+        # Step 1: Change data type
+    embeddings_label = np.array([embedding for embedding in embeddings_label]).astype("float32")
+    print(embeddings_pred)
+    cosine_similarity(embedings_pred , embeddings_label)
 '''     dataset = get_data_loaders()        
     predictedTokens1x1 = []  
     for i in dataset['valid']['input_ids']:
