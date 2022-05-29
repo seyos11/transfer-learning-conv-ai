@@ -394,14 +394,13 @@ def run():
     #metric4x4 = load_metric('bleu')
     #metric4x4.add_batch(predictions=predicted_tokens1, references=dataset['valid']['decoder_input_ids'])    
     #result = metric4x4.compute(predictions=decoded_preds,references=decoded_labels)  
-    print(result1)
     
-    a_file = open("pruebaMetrics.json", "w")
-
-    json.dump(result3, a_file)
-
-    a_file.close()
-    print(type(result3))
+    print(result1)
+    decoded_preds = "".join(decoded_preds)
+    decoded_labels ="".join(decoded_labels)
+    print(decoded_preds)
+    print("decoded labels")
+    print(decoded_labels)
 '''     dataset = get_data_loaders()        
     predictedTokens1x1 = []  
     for i in dataset['valid']['input_ids']:
