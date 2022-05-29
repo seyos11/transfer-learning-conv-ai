@@ -415,7 +415,7 @@ def run():
         # Step 1: Change data type
     embeddings_label = np.array([embedding for embedding in embeddings_label]).astype("float32")
     print(embeddings_pred)
-    cosine_similarity(embeddings_pred, embeddings_label)
+    print(cosine_similarity(embeddings_pred, embeddings_label))
 '''     dataset = get_data_loaders()        
     predictedTokens1x1 = []  
     for i in dataset['valid']['input_ids']:
