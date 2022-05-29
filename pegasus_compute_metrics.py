@@ -316,7 +316,7 @@ def run():
     parser = ArgumentParser()
     parser.add_argument("--model_checkpoint", type=str, default="results2_3epochs_2batch/checkpoint-143500", help="model checkpoint to use")
     parser.add_argument("--data_faiss", type=str, default="data_faiss_pegasus_1generated.pkl", help="pickle data to recover faiss data")
-    parser.add_argument("--n_sentences", type=int, default= 2, help="sentences used to get faiss personality")
+    parser.add_argument("--n_sentences", type=int, default= 4, help="sentences used to get faiss personality")
     parser.add_argument("--metric", type=str, default= 'all', help="Metric to eval Pegasus Model")
 
     args = parser.parse_args()
@@ -445,7 +445,7 @@ def run():
     decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
     if args.metric == 'all':
         result = metric_bleu.compute(predictions=decoded_preds,references=decoded_labels)
-        a_file = open("Bleu_Metric2x2.json", "w")
+        a_file = open("Bleu_Metric4x4.json", "w")
 
         json.dump(result, a_file)
 
@@ -455,13 +455,13 @@ def run():
         decoded_preds = [" ".join(i) for i in decoded_preds]  
         result = metric_rouge.compute(predictions=decoded_preds,references=decoded_labels)  
         print(result)    
-        a_file = open("Rouge_Metric2x2.json", "w")
+        a_file = open("Rouge_Metric4x4.json", "w")
 
         json.dump(result, a_file)
 
         a_file.close()     
         result = metric_cosine_similarity.compute(predictions=decoded_preds,references=decoded_labels,lang='en')  
-        a_file = open("Cosine_Similarity_Metric2x2.json", "w")
+        a_file = open("Cosine_Similarity_Metric4x4.json", "w")
 
         json.dump(result, a_file)
 
