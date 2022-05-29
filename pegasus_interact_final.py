@@ -406,10 +406,10 @@ def run():
     print(result3)
     
     model = SentenceTransformer('all-mpnet-base-v2')
-    embeddings_pred = model.encode(persona, show_progress_bar=False)   
+    embeddings_pred = model.encode(decoded_preds, show_progress_bar=False)   
         # Step 1: Change data type
     embeddings_pred = np.array([embedding for embedding in embeddings_pred]).astype("float32")
-    embeddings_label = model.encode(persona, show_progress_bar=False)   
+    embeddings_label = model.encode(decoded_labels, show_progress_bar=False)   
         # Step 1: Change data type
     embeddings_label = np.array([embedding for embedding in embeddings_label]).astype("float32")
     print(embeddings_pred)
