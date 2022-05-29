@@ -395,8 +395,8 @@ def run():
     #result = metric4x4.compute(predictions=decoded_preds,references=decoded_labels)  
     
     print(result1)
-    decoded_preds = "".join(decoded_preds)
-    decoded_labels ="".join(decoded_labels)
+    decoded_preds = ["".join(decoded_preds)]
+    decoded_labels =["".join(decoded_labels)]
     print(decoded_preds)
     print("decoded labels")
     print(decoded_labels)
