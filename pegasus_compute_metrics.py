@@ -37,7 +37,7 @@ from datasets import load_metric
 from tqdm import tqdm
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
-
+import numpy as np
 PERSONACHAT_URL = "https://s3.amazonaws.com/datasets.huggingface.co/personachat/personachat_self_original.json"
 
 logger = logging.getLogger(__file__)
@@ -489,7 +489,7 @@ def run():
     if args.metric == 'rouge':
         result = metric_rouge.compute(predictions=decoded_preds,references=decoded_labels)  
         print(result)     
-    elif args.metric == 'cosine_similarity':
+    elif args.metric == 'bertscore':
         decoded_preds = ["".join(decoded_preds)]
         decoded_labels =["".join(decoded_labels)]
         model = SentenceTransformer('all-mpnet-base-v2')
