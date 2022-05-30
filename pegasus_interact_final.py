@@ -469,7 +469,6 @@ def run():
             decoded_preds.append(tokenizer.batch_decode(i, skip_special_tokens=True))
         for i in dataset['valid']['decoder_input_ids'][:10]:
             decoded_labels.append([i])
-        decoded_labels = [" ".join(i) for j in decoded_labels for i in j]
         decoded_labels = [" ".join(i) for i in decoded_labels]
         decoded_preds = [" ".join(i) for i in decoded_preds]
         print(decoded_preds)
