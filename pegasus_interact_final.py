@@ -470,10 +470,11 @@ def run():
         for i in dataset['valid']['decoder_input_ids'][:10]:
             decoded_labels.append([i])
         decoded_labels = [" ".join(i) for j in decoded_labels for i in j]
+        decoded_labels = [" ".join(i) for i in decoded_labels]
         decoded_preds = [" ".join(i) for i in decoded_preds]
         print(decoded_preds)
         print(decoded_labels)
-        sentences = [i for i in nlp(predicciones).sents]
+        sentences = [i for i in nlp(decoded_preds).sents]
         print(sentences)
         references = [i for i in nlp(labels).sents]   
         personalities = [i for i in nlp(personality_set).sents]                     
