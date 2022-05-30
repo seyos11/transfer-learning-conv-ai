@@ -469,7 +469,7 @@ def run():
             decoded_preds.append(tokenizer.batch_decode(i, skip_special_tokens=True))
         for i in dataset['valid']['decoder_input_ids'][:10]:
             decoded_labels.append([i])
-        sentences = [i for i in nlp(`predicciones`).sents]
+        sentences = [i for i in nlp(predicciones).sents]
         print(sentences)
         references = [i for i in nlp(labels).sents]   
         personalities = [i for i in nlp(personality_set).sents]                     
