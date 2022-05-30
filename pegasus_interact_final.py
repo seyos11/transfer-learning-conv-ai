@@ -471,6 +471,8 @@ def run():
             decoded_labels.append([i])
         decoded_labels = [" ".join(i) for i in decoded_labels]
         decoded_preds = [" ".join(i) for i in decoded_preds]
+        decoded_labels = " ".join(decoded_labels)
+        decoded_preds = " ".join(decoded_preds)
         print(decoded_preds)
         print(decoded_labels)
         sentences = [i for i in nlp(decoded_preds).sents]
