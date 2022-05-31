@@ -127,7 +127,6 @@ def get_persona_faiss_selected(args):
             index.add_with_ids(embeddings_persona, np.array(list(range(0,embeddings_persona.shape[0])))) 
             #if count==4:
             #    break
-            count = count + 1
             #data_train list of set of list of all personalities (not duplicated)
             for _ in range(args.personality_permutations):
                 for utterance in dialog["utterances"]:
@@ -143,6 +142,7 @@ def get_persona_faiss_selected(args):
                         persona_list = []
                         if D[0][0] >0.35:
                             persona_list = persona[I[0][0]]
+                            count = count + 1
                         else:
                             persona_list = '<None>'
                         history_faiss_selected.append(history)
@@ -151,6 +151,7 @@ def get_persona_faiss_selected(args):
                         
                 #persona = [persona[-1]] + persona[:-1]  # permuted personalities
         #break
+        print(count)
     return persona_faiss_selected
 
 
