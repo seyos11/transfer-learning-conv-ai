@@ -136,16 +136,19 @@ def get_persona_faiss_selected(args):
                         #history_encoded = model.encode(history,show_progress_bar=False)
                         #history_splitted = " ".join(history)
                         #history_splitted = history[1] + ' ' + history[3]                                     
-                        history_splitted = history[1]
+                        history_splitted = history[3]
 
                         history_encoded = model.encode(history_splitted,show_progress_bar=False)
                         D, I = index.search(np.array([history_encoded]), k=len(persona))
                         persona_list = []
-                        persona_list = persona[I[0][0]]
+                        if D[0][0] >0.35:
+                            persona_list = persona[I[0][0]]
+                        else:
+                            persona_list = '<None>'
                         history_faiss_selected.append(history)
                         #persona_faiss_selected.append(persona[I[0][0]])
                         persona_faiss_selected.append(persona_list)
-                            
+                        
                 #persona = [persona[-1]] + persona[:-1]  # permuted personalities
         #break
     return persona_faiss_selected
@@ -173,7 +176,7 @@ def train():
     parser.add_argument("--local_rank", type=int, default=-1, help="Local rank for distributed training (-1: not distributed)")
     args = parser.parse_args()
     data_obtained = get_persona_faiss_selected(args)
-    with open('data_faiss_pegasus_1_sentence_final_generated.pkl', 'wb') as f:
+    with open('faiss_035threshold_1sentence.pkl', 'wb') as f:
         pickle.dump(data_obtained, f)
 
 if __name__ == "__main__":
