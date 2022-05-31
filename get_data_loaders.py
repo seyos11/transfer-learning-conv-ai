@@ -346,4 +346,4 @@ if __name__=='__main__':
     dataset = get_data_loaders_1sentence()
   
     with open('dataload_pegasus_1x1_threshold035.pkl', 'wb') as f:
-        pickle.dump(data_obtained, f)
+        pickle.dump(dataset, f)
