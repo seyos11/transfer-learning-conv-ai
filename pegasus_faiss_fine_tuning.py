@@ -219,7 +219,7 @@ def get_data_loaders_1sentence():
     personality = []
     history_complete = []
     count_persona = 0
-    with open('data_faiss_pegasus_1generated.pkl', 'rb') as f:
+    with open('faiss_035threshold_1sentence.pkl', 'rb') as f:
         persona_selected_list = pickle.load(f)
     for dataset_name, dataset in personachat.items():
         num_candidates = len(dataset[0]["utterances"][0]["candidates"])
@@ -233,12 +233,13 @@ def get_data_loaders_1sentence():
                 count_history = count_history + 1
                 history = utterance["history"][-(2*2+1):]
                 #history_complete.append(history)
-                if len(history) > 1:
-                    history_chatbot = history[1]
+                if len(history) > 3:
+                    history_chatbot = history[3]
                     persona_selected = persona_selected_list[count_persona]
-                    instance = build_input_from_segments_faiss(persona_selected, history_chatbot)     
-                    for input_name, input_array in instance.items():
-                        datasets[dataset_name][input_name].append(input_array)
+                    if (persona_selected != '<None>'):
+                        instance = build_input_from_segments_faiss(persona_selected, history_chatbot)     
+                        for input_name, input_array in instance.items():
+                            datasets[dataset_name][input_name].append(input_array)
                     count_persona = count_persona + 1
     return datasets
 
@@ -349,7 +350,7 @@ def prepare_data(model_name,
   return train_dataset, val_dataset, test_dataset, tokenizer
 
 
-def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./results_4epochs_16batch_faiss_3sentences_lr00005_260522'):
+def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./results_4epochs_8batch_faiss_threshold035_1sentences_lr0005_310522'):
   """
   Prepare configurations and base model for fine-tuning
   """
@@ -363,17 +364,18 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
   if val_dataset is not None:
     training_args = TrainingArguments(
       output_dir=output_dir,           # output directory
-      num_train_epochs=3,           # total number of training epochs
-      per_device_train_batch_size=1,   # batch size per device during training, can increase if memory allows
-      per_device_eval_batch_size=1,    # batch size for evaluation, can increase if memory allows
+      num_train_epochs=4,           # total number of training epochs
+      per_device_train_batch_size=8,   # batch size per device during training, can increase if memory allows
+      per_device_eval_batch_size=8,    # batch size for evaluation, can increase if memory allows
       save_steps=500,                  # number of updates steps before checkpoint saves
-      save_total_limit=5,              # limit the total amount of checkpoints and deletes the older checkpoints
-      evaluation_strategy='steps',     # evaluation strategy to adopt during training
+      save_total_limit=1,              # limit the total amount of checkpoints and deletes the older checkpoints
+      evaluation_strategy='epoch',     # evaluation strategy to adopt during training
       eval_steps=100,                  # number of update steps before evaluation
       warmup_steps=500,                # number of warmup steps for learning rate scheduler
       weight_decay=0.01,               # strength of weight decay
       logging_dir='./logs1',            # directory for storing logs
       logging_steps=10,
+      learning_rate = 0.005
     )
 
     trainer = Trainer(
@@ -397,7 +399,7 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
       logging_dir='./logs',            # directory for storing logs
       logging_steps=10,
       #learning_rate=0.1
-      learning_rate = 0.0005
+      learning_rate = 0.005
     )
 
     trainer = Trainer(
@@ -412,7 +414,7 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
 if __name__=='__main__':
   # use XSum dataset as example, with first 1000 docs as training data
   from datasets import load_dataset
-  dataset = get_data_loaders3x3()
+  dataset = get_data_loaders_1sentence()
   #dataset = load_dataset("xsum")
   train_texts, train_labels = dataset['train']['input_ids'], dataset['train']['decoder_input_ids']
   
