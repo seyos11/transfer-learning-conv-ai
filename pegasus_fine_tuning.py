@@ -181,7 +181,7 @@ def prepare_data(model_name,
   return train_dataset, val_dataset, test_dataset, tokenizer
 
 
-def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./result_4epochs_8batch_01learningrate_260522_final_validation'):
+def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./result_4epochs_8batch_learningrate0005_060122_final_validation_4x4'):
   """
   Prepare configurations and base model for fine-tuning
   """
@@ -195,7 +195,7 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
   if val_dataset is not None:
     training_args = TrainingArguments(
       output_dir=output_dir,           # output directory
-      num_train_epochs=3,           # total number of training epochs
+      num_train_epochs=4,           # total number of training epochs
       per_device_train_batch_size=8,   # batch size per device during training, can increase if memory allows
       per_device_eval_batch_size=8,    # batch size for evaluation, can increase if memory allows
       save_steps=500,                  # number of updates steps before checkpoint saves
@@ -206,7 +206,7 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
       weight_decay=0.1,               # strength of weight decay
       logging_dir='./logs1',            # directory for storing logs
       logging_steps=10,
-      learning_rate=0.0005
+      learning_rate=0.005
 
     )
 
@@ -231,7 +231,7 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
       logging_dir='./logs',            # directory for storing logs
       logging_steps=10,
       #learning_rate=0.1
-      learning_rate=0.0005
+      learning_rate=0.005
       
     )
 
