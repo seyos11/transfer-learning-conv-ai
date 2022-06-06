@@ -300,7 +300,7 @@ def build_input_from_segments_faiss_2(persona_faiss, history_chatbot, with_eos=T
     instance = {}
     #instance["input_ids"] = " ".join(persona_faiss)
     #instance["input_ids"] = " ".join(history[-1])
-    instance["input_ids"] = ".".join(history_chatbot)   
+    instance["input_ids"] = ". ".join(history_chatbot)   
     instance["decoder_input_ids"] = " ".join(persona_faiss)
     instance["decoder_input_metric"] = persona_faiss
     return instance
@@ -360,7 +360,7 @@ def run():
             #labels = [[label.strip()] for label in labels]
 
             return preds, labels
-        for i in tqdm(dataset['valid']['input_ids'][:10]):
+        for i in tqdm(dataset['valid']['input_ids'][:30]):
             batch = tokenizer(i, truncation=True, padding="longest", return_tensors="pt").to('cuda')
             output = model.generate(**batch)
             predicciones.append(output)
@@ -372,9 +372,9 @@ def run():
 
         for i in predicciones:
             decoded_preds.append(tokenizer.batch_decode(i, skip_special_tokens=True))
-        for i in dataset['valid']['decoder_input_ids'][:10]:
+        for i in dataset['valid']['decoder_input_ids'][:30]:
             decoded_labels.append([i.split()])
-        for i in dataset['valid']['decoder_input_metric'][:10]:
+        for i in dataset['valid']['decoder_input_metric'][:30]:
             lista =[]
             for j in i:
                 lista.append(j.split())
