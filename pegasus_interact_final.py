@@ -376,7 +376,7 @@ def run():
             decoded_labels.append([i.split()])
         for i in dataset['valid']['decoder_input_metric'][:10]:
             for j in i:
-                lista.append[i.split()]
+                lista = [j.split()]
                 decoded_labels_bleu.append(lista)
         for i in decoded_preds:
             for j in i:
