@@ -369,12 +369,11 @@ def run():
 
         for i in predicciones:
             decoded_preds.append(tokenizer.batch_decode(i, skip_special_tokens=True))
-        for i in dataset['valid']['decoder_input_ids'][:30]:
+        for i in dataset['valid']['decoder_input_ids'][:10]:
             decoded_labels.append([i.split()])
         print(decoded_labels)
-
         result1 = metric_bleu.compute(predictions=decoded_preds,references=decoded_labels)  
-        
+        print(result1)
         decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
         decoded_labels = [" ".join(i) for j in decoded_labels for i in j]
         decoded_preds = [" ".join(i) for i in decoded_preds]
@@ -389,34 +388,34 @@ def run():
         #print(batch2)
         #print(batch)
         #predictedTokens4x4.append(model.generate(**batch))
-        print(decoded_preds)
-        print("decoded labels")
-        print(decoded_labels)
+        #print(decoded_preds)
+        #print("decoded labels")
+        #print(decoded_labels)
         #predictedTokens4x4.append(decoded_preds)
         #references.append(decoded_labels)
             ##metric4x4.add(prediction=output, reference=batch2['input_ids'])    
         #metric4x4 = load_metric('bleu')
         #metric4x4.add_batch(predictions=predicted_tokens1, references=dataset['valid']['decoder_input_ids'])    
         #result = metric4x4.compute(predictions=decoded_preds,references=decoded_labels)  
-        
-        print(result1)
+        print("resultado 1")
+        #print(result1)
         decoded_preds = ["".join(decoded_preds)]
         decoded_labels =["".join(decoded_labels)]
-        print(decoded_preds)
-        print("decoded labels")
-        print(decoded_labels)
+        #print(decoded_preds)
+        #print("decoded labels")
+        #print(decoded_labels)
         result3 = metric_cosine_similarity.compute(predictions=decoded_preds,references=decoded_labels, lang='en')  
-        print(result3)
+        #print(result3)
         
-        model = SentenceTransformer('all-mpnet-base-v2')
-        embeddings_pred = model.encode(decoded_preds, show_progress_bar=False)   
+        #model = SentenceTransformer('all-mpnet-base-v2')
+        #embeddings_pred = model.encode(decoded_preds, show_progress_bar=False)   
             # Step 1: Change data type
-        embeddings_pred = np.array([embedding for embedding in embeddings_pred]).astype("float32")
-        embeddings_label = model.encode(decoded_labels, show_progress_bar=False)   
+        #embeddings_pred = np.array([embedding for embedding in embeddings_pred]).astype("float32")
+        #embeddings_label = model.encode(decoded_labels, show_progress_bar=False)   
             # Step 1: Change data type
-        embeddings_label = np.array([embedding for embedding in embeddings_label]).astype("float32")
+        #embeddings_label = np.array([embedding for embedding in embeddings_label]).astype("float32")
         #print(embeddings_pred)
-        result = cosine_similarity(embeddings_pred, embeddings_label)
+        #result = cosine_similarity(embeddings_pred, embeddings_label)
         
         
         '''     dataset = get_data_loaders()        
@@ -477,7 +476,7 @@ def run():
         print(decoded_labels)
         sentences = [i for i in nlp(decoded_preds).sents]
         print(sentences)
-        references = [i for i in nlp(labels).sents]   
-        personalities = [i for i in nlp(personality_set).sents]                     
+        references = [i for i in nlp(decoded_labels).sents]   
+
 if __name__ == "__main__":
     run()
