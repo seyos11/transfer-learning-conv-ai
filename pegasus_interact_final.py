@@ -374,7 +374,7 @@ def run():
             decoded_preds.append(tokenizer.batch_decode(i, skip_special_tokens=True))
         for i in dataset['valid']['decoder_input_ids'][:10]:
             decoded_labels.append([i.split()])
-        for i in dataset['valid']['decoder_input_ids'][:10]:
+        for i in dataset['valid']['decoder_input_metric'][:10]:
             for j in i:
                 decoded_labels_bleu.append([j.split()])
         for i in decoded_preds:
