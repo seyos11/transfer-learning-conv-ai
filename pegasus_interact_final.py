@@ -389,6 +389,7 @@ def run():
         #print(dataset['valid']['decoder_input_metric'][:10])
         result1 = metric_bleu.compute(predictions=decoded_preds_bleu,references=decoded_labels_bleu)  
         print(result1)
+        print(dataset['valid']['input_ids'][:10])
         decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
         decoded_labels = [" ".join(i) for j in decoded_labels for i in j]
         decoded_preds = [" ".join(i) for i in decoded_preds]
