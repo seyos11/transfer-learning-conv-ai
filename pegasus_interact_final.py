@@ -360,7 +360,7 @@ def run():
             #labels = [[label.strip()] for label in labels]
 
             return preds, labels
-        for i in tqdm(dataset['valid']['input_ids'][:30]):
+        for i in tqdm(dataset['valid']['input_ids'][:10]):
             batch = tokenizer(i, truncation=True, padding="longest", return_tensors="pt").to('cuda')
             output = model.generate(**batch)
             predicciones.append(output)
@@ -385,8 +385,9 @@ def run():
         print(decoded_preds)
         print(decoded_labels)
         print(decoded_labels_bleu)
-        print(dataset['valid']['decoder_input_metric'][:10])
-        result1 = metric_bleu.compute(predictions=decoded_preds,references=decoded_labels)  
+        print(decoded_preds_bleu)
+        #print(dataset['valid']['decoder_input_metric'][:10])
+        result1 = metric_bleu.compute(predictions=decoded_preds_bleu,references=decoded_labels_bleu)  
         print(result1)
         decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
         decoded_labels = [" ".join(i) for j in decoded_labels for i in j]
