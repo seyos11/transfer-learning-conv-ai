@@ -346,7 +346,7 @@ def run():
     decoded_preds = []
     decoded_labels = []
     decoded_preds_bleu = []
-    decoded_labels_belu = []
+    decoded_labels_bleu = []
     if (prueba == 1):
         count = 0
         
@@ -374,13 +374,16 @@ def run():
             decoded_preds.append(tokenizer.batch_decode(i, skip_special_tokens=True))
         for i in dataset['valid']['decoder_input_ids'][:10]:
             decoded_labels.append([i.split()])
+        for i in dataset['valid']['decoder_input_ids'][:10]:
+            for j in i:
+                decoded_labels_bleu.append([j.split()])
         for i in decoded_preds:
             for j in i:
                 decoded_preds_bleu.append(j.split())
         print(decoded_preds)
-        print(decoded_preds_bleu)
         print(decoded_labels)
-        print(dataset['valid']['decoder_input_metric'][:10])
+        print(decoded_labels_bleu)
+        #print(dataset['valid']['decoder_input_metric'][:10])
         result1 = metric_bleu.compute(predictions=decoded_preds,references=decoded_labels)  
         print(result1)
         decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
