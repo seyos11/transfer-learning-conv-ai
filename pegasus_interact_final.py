@@ -302,6 +302,7 @@ def build_input_from_segments_faiss_2(persona_faiss, history_chatbot, with_eos=T
     #instance["input_ids"] = " ".join(history[-1])
     instance["input_ids"] = ".".join(history_chatbot)   
     instance["decoder_input_ids"] = " ".join(persona_faiss)
+    instance["decoder_input_metric"] = persona_faiss
     return instance
 
 def build_input_from_segments_faiss_4(persona_faiss, history_chatbot, with_eos=True):
@@ -379,7 +380,7 @@ def run():
         print(decoded_preds)
         print(decoded_preds_bleu)
         print(decoded_labels)
-        print(dataset['valid']['decoder_input_ids'][:10])
+        print(dataset['valid']['decoder_input_metric'][:10])
         result1 = metric_bleu.compute(predictions=decoded_preds,references=decoded_labels)  
         print(result1)
         decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
