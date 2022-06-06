@@ -350,7 +350,7 @@ def prepare_data(model_name,
   return train_dataset, val_dataset, test_dataset, tokenizer
 
 
-def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./results_4epochs_8batch_faiss_threshold035_1sentences_lr0005_310522'):
+def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, freeze_encoder=False, output_dir='./results_4epochs_8batch_faiss_threshold035_1sentences_lr0001_310522'):
   """
   Prepare configurations and base model for fine-tuning
   """
@@ -372,10 +372,10 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
       evaluation_strategy='epoch',     # evaluation strategy to adopt during training
       eval_steps=100,                  # number of update steps before evaluation
       warmup_steps=500,                # number of warmup steps for learning rate scheduler
-      weight_decay=0.01,               # strength of weight decay
+      weight_decay=0.1,               # strength of weight decay
       logging_dir='./logs1',            # directory for storing logs
       logging_steps=10,
-      learning_rate = 0.005
+      learning_rate = 0.001
     )
 
     trainer = Trainer(
@@ -399,7 +399,7 @@ def prepare_fine_tuning(model_name, tokenizer, train_dataset, val_dataset=None, 
       logging_dir='./logs',            # directory for storing logs
       logging_steps=10,
       #learning_rate=0.1
-      learning_rate = 0.005
+      learning_rate = 0.001
     )
 
     trainer = Trainer(
