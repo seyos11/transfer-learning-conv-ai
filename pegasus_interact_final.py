@@ -376,14 +376,14 @@ def run():
             decoded_labels.append([i.split()])
         for i in dataset['valid']['decoder_input_metric'][:10]:
             for j in i:
-                decoded_labels_bleu.append([j.split()])
+                decoded_labels_bleu.append(j.split())
         for i in decoded_preds:
             for j in i:
                 decoded_preds_bleu.append(j.split())
         print(decoded_preds)
         print(decoded_labels)
         print(decoded_labels_bleu)
-        #print(dataset['valid']['decoder_input_metric'][:10])
+        print(dataset['valid']['decoder_input_metric'][:10])
         result1 = metric_bleu.compute(predictions=decoded_preds,references=decoded_labels)  
         print(result1)
         decoded_preds, decoded_labels = postprocess_text(decoded_preds, decoded_labels)
