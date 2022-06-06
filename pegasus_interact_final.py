@@ -339,7 +339,7 @@ def run():
     print(metric_bleu.inputs_description)
     print(metric_rouge.inputs_description)
     print(metric_cosine_similarity.inputs_description)
-    prueba = 0
+    prueba = 1
     #metric4x4.add_batch(predictions=predicted_tokens1, references=references)    
     #metric4x4.compute(predicionts=predicted_tokens1, references = references) 
     decoded_preds = []
