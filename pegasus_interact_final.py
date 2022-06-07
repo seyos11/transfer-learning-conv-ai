@@ -364,6 +364,7 @@ def run():
             batch = tokenizer(i, truncation=True, padding="longest", return_tensors="pt").to('cuda')
             output = model.generate(**batch)
             predicciones.append(output)
+        print(predicciones)
         #for i in tqdm(dataset['valid']['input_ids'][:100]):
             #print (i)
         #batch = tokenizer(i, truncation=True, padding="longest", return_tensors="pt").to('cuda')
